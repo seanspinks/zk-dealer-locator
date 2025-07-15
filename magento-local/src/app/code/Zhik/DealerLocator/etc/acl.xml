@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+    <acl>
+        <resources>
+            <resource id="Magento_Backend::admin">
+                <resource id="Zhik_DealerLocator::dealer_locator" title="Dealer Locator" sortOrder="70">
+                    <resource id="Zhik_DealerLocator::locations" title="Manage Locations" sortOrder="10">
+                        <resource id="Zhik_DealerLocator::locations_view" title="View Locations" sortOrder="10"/>
+                        <resource id="Zhik_DealerLocator::locations_save" title="Save Locations" sortOrder="20"/>
+                        <resource id="Zhik_DealerLocator::locations_delete" title="Delete Locations" sortOrder="30"/>
+                        <resource id="Zhik_DealerLocator::locations_approve" title="Approve/Reject Locations" sortOrder="40"/>
+                        <resource id="Zhik_DealerLocator::locations_import" title="Import Locations" sortOrder="50"/>
+                        <resource id="Zhik_DealerLocator::locations_export" title="Export Locations" sortOrder="60"/>
+                    </resource>
+                    <resource id="Zhik_DealerLocator::tags" title="Manage Tags" sortOrder="20">
+                        <resource id="Zhik_DealerLocator::tags_view" title="View Tags" sortOrder="10"/>
+                        <resource id="Zhik_DealerLocator::tags_save" title="Save Tags" sortOrder="20"/>
+                        <resource id="Zhik_DealerLocator::tags_delete" title="Delete Tags" sortOrder="30"/>
+                    </resource>
+                    <resource id="Zhik_DealerLocator::configuration" title="Configuration" sortOrder="100"/>
+                </resource>
+            </resource>
+        </resources>
+    </acl>
+</config>

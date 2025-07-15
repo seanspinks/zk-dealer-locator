@@ -1,0 +1,78 @@
+{
+    "zhik_dealer_locations": {
+        "column": {
+            "location_id": true,
+            "customer_id": true,
+            "parent_id": true,
+            "name": true,
+            "address": true,
+            "city": true,
+            "state": true,
+            "postal_code": true,
+            "country": true,
+            "latitude": true,
+            "longitude": true,
+            "phone": true,
+            "email": true,
+            "website": true,
+            "hours": true,
+            "description": true,
+            "image_url": true,
+            "status": true,
+            "rejection_reason": true,
+            "is_latest": true,
+            "created_at": true,
+            "updated_at": true,
+            "approved_at": true,
+            "approved_by": true,
+            "ip_address": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZHIK_DEALER_LOCATIONS_CUSTOMER_ID_CUSTOMER_ENTITY_ENTITY_ID": true,
+            "ZHIK_DEALER_LOCATIONS_PARENT_ID_ZHIK_DEALER_LOCATIONS_LOCATION_ID": true,
+            "ZHIK_DEALER_LOCATIONS_APPROVED_BY_ADMIN_USER_USER_ID": true
+        },
+        "index": {
+            "ZHIK_DEALER_LOCATIONS_CUSTOMER_ID": true,
+            "ZHIK_DEALER_LOCATIONS_STATUS": true,
+            "ZHIK_DEALER_LOCATIONS_IS_LATEST": true,
+            "ZHIK_DEALER_LOCATIONS_COORDINATES": true
+        }
+    },
+    "zhik_dealer_tags": {
+        "column": {
+            "tag_id": true,
+            "tag_name": true,
+            "tag_slug": true,
+            "tag_color": true,
+            "tag_icon": true,
+            "description": true,
+            "sort_order": true,
+            "is_active": true,
+            "created_at": true,
+            "updated_at": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZHIK_DEALER_TAGS_TAG_SLUG": true
+        },
+        "index": {
+            "ZHIK_DEALER_TAGS_IS_ACTIVE": true
+        }
+    },
+    "zhik_dealer_location_tags": {
+        "column": {
+            "location_id": true,
+            "tag_id": true
+        },
+        "constraint": {
+            "PRIMARY": true,
+            "ZHIK_DEALER_LOCATION_TAGS_LOCATION_ID_ZHIK_DEALER_LOCATIONS_LOCATION_ID": true,
+            "ZHIK_DEALER_LOCATION_TAGS_TAG_ID_ZHIK_DEALER_TAGS_TAG_ID": true
+        },
+        "index": {
+            "ZHIK_DEALER_LOCATION_TAGS_TAG_ID": true
+        }
+    }
+}

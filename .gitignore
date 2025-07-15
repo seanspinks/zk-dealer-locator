@@ -2,6 +2,7 @@
 
 # Magento directories
 /magento-local/
+!/magento-local/src/app/code/Zhik/
 /app/code/Magento/
 /app/design/*/Magento/
 /app/etc/

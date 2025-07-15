@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Repository preferences -->
+    <preference for="Zhik\DealerLocator\Api\LocationRepositoryInterface" type="Zhik\DealerLocator\Model\LocationRepository"/>
+    <preference for="Zhik\DealerLocator\Api\TagRepositoryInterface" type="Zhik\DealerLocator\Model\TagRepository"/>
+    <preference for="Zhik\DealerLocator\Api\LocationManagementInterface" type="Zhik\DealerLocator\Model\LocationManagement"/>
+    
+    <!-- Data interfaces preferences -->
+    <preference for="Zhik\DealerLocator\Api\Data\LocationInterface" type="Zhik\DealerLocator\Model\Location"/>
+    <preference for="Zhik\DealerLocator\Api\Data\TagInterface" type="Zhik\DealerLocator\Model\Tag"/>
+    <preference for="Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Zhik\DealerLocator\Api\Data\TagSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    
+    <!-- Grid collections -->
+    <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">
+        <arguments>
+            <argument name="collections" xsi:type="array">
+                <item name="dealerlocator_location_listing_data_source" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Location\Grid\Collection</item>
+                <item name="dealerlocator_tag_listing_data_source" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Tag\Grid\Collection</item>
+            </argument>
+        </arguments>
+    </type>
+    
+    <!-- Virtual types for grid collections -->
+    <virtualType name="Zhik\DealerLocator\Model\ResourceModel\Location\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">zhik_dealer_locations</argument>
+            <argument name="resourceModel" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Location</argument>
+        </arguments>
+    </virtualType>
+    
+    <virtualType name="Zhik\DealerLocator\Model\ResourceModel\Tag\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+        <arguments>
+            <argument name="mainTable" xsi:type="string">zhik_dealer_tags</argument>
+            <argument name="resourceModel" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Tag</argument>
+        </arguments>
+    </virtualType>
+</config>
