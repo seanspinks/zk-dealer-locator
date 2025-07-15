@@ -13,17 +13,15 @@ use Magento\Framework\View\Element\UiComponentFactory;
 use Magento\Ui\Component\Listing\Columns\Column;
 
 /**
- * Class LocationActions
+ * Class TagActions
  */
-class LocationActions extends Column
+class TagActions extends Column
 {
     /**
      * Url path
      */
-    const URL_PATH_EDIT = 'dealerlocator/location/edit';
-    const URL_PATH_DELETE = 'dealerlocator/location/delete';
-    const URL_PATH_APPROVE = 'dealerlocator/location/approve';
-    const URL_PATH_REJECT = 'dealerlocator/location/reject';
+    const URL_PATH_EDIT = 'dealerlocator/tag/edit';
+    const URL_PATH_DELETE = 'dealerlocator/tag/delete';
 
     /**
      * @var UrlInterface
@@ -58,45 +56,24 @@ class LocationActions extends Column
     {
         if (isset($dataSource['data']['items'])) {
             foreach ($dataSource['data']['items'] as & $item) {
-                if (isset($item['location_id'])) {
+                if (isset($item['tag_id'])) {
                     $name = $this->getData('name');
                     $item[$name]['edit'] = [
                         'href' => $this->urlBuilder->getUrl(
                             static::URL_PATH_EDIT,
-                            ['location_id' => $item['location_id']]
+                            ['tag_id' => $item['tag_id']]
                         ),
                         'label' => __('Edit')
                     ];
-                    
-                    if ($item['status'] == 'pending') {
-                        $item[$name]['approve'] = [
-                            'href' => $this->urlBuilder->getUrl(
-                                static::URL_PATH_APPROVE,
-                                ['location_id' => $item['location_id']]
-                            ),
-                            'label' => __('Approve'),
-                            'callback' => 'require(["Zhik_DealerLocator/js/grid/actions"], function(actions) { actions.approveLocation("' . 
-                                $this->urlBuilder->getUrl(static::URL_PATH_APPROVE, ['location_id' => $item['location_id']]) . 
-                                '"); });'
-                        ];
-                        $item[$name]['reject'] = [
-                            'href' => '#',
-                            'label' => __('Reject'),
-                            'callback' => 'require(["Zhik_DealerLocator/js/grid/actions"], function(actions) { actions.rejectLocation("' . 
-                                $this->urlBuilder->getUrl(static::URL_PATH_REJECT, ['location_id' => $item['location_id']]) . 
-                                '"); });'
-                        ];
-                    }
-                    
                     $item[$name]['delete'] = [
                         'href' => $this->urlBuilder->getUrl(
                             static::URL_PATH_DELETE,
-                            ['location_id' => $item['location_id']]
+                            ['tag_id' => $item['tag_id']]
                         ),
                         'label' => __('Delete'),
                         'confirm' => [
-                            'title' => __('Delete Location'),
-                            'message' => __('Are you sure you want to delete this location?')
+                            'title' => __('Delete Tag'),
+                            'message' => __('Are you sure you want to delete this tag?')
                         ]
                     ];
                 }

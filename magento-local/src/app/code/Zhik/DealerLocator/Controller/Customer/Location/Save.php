@@ -16,6 +16,7 @@ use Magento\Framework\Data\Form\FormKey\Validator;
 use Magento\Framework\Exception\LocalizedException;
 use Zhik\DealerLocator\Api\Data\LocationInterfaceFactory;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
+use Zhik\DealerLocator\Helper\Email as EmailHelper;
 
 /**
  * Save location controller
@@ -43,24 +44,32 @@ class Save extends AbstractAccount implements HttpPostActionInterface
     private $formKeyValidator;
 
     /**
+     * @var EmailHelper
+     */
+    private $emailHelper;
+
+    /**
      * @param Context $context
      * @param LocationRepositoryInterface $locationRepository
      * @param LocationInterfaceFactory $locationFactory
      * @param Session $customerSession
      * @param Validator $formKeyValidator
+     * @param EmailHelper $emailHelper
      */
     public function __construct(
         Context $context,
         LocationRepositoryInterface $locationRepository,
         LocationInterfaceFactory $locationFactory,
         Session $customerSession,
-        Validator $formKeyValidator
+        Validator $formKeyValidator,
+        EmailHelper $emailHelper
     ) {
         parent::__construct($context);
         $this->locationRepository = $locationRepository;
         $this->locationFactory = $locationFactory;
         $this->customerSession = $customerSession;
         $this->formKeyValidator = $formKeyValidator;
+        $this->emailHelper = $emailHelper;
     }
 
     /**
@@ -125,6 +134,13 @@ class Save extends AbstractAccount implements HttpPostActionInterface
             }
 
             $this->locationRepository->save($location);
+            
+            // Send email notifications
+            if (!$locationId) {
+                // New location submission
+                $this->emailHelper->sendSubmissionConfirmation($location);
+                $this->emailHelper->sendAdminNewSubmission($location);
+            }
             
             $this->messageManager->addSuccessMessage(__('Location has been saved successfully.'));
             return $resultRedirect->setPath('*/*/');

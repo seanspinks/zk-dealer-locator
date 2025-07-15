@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Email:etc/email_templates.xsd">
+    <!-- Customer Emails -->
+    <template id="dealerlocator_email_customer_submission_confirmation" label="Dealer Location - Submission Confirmation" file="customer/submission_confirmation.html" type="html" module="Zhik_DealerLocator" area="frontend"/>
+    <template id="dealerlocator_email_customer_location_approved" label="Dealer Location - Location Approved" file="customer/location_approved.html" type="html" module="Zhik_DealerLocator" area="frontend"/>
+    <template id="dealerlocator_email_customer_location_rejected" label="Dealer Location - Location Rejected" file="customer/location_rejected.html" type="html" module="Zhik_DealerLocator" area="frontend"/>
+    
+    <!-- Admin Emails -->
+    <template id="dealerlocator_email_admin_new_submission" label="Dealer Location - New Submission Notification" file="admin/new_submission.html" type="html" module="Zhik_DealerLocator" area="frontend"/>
+</config>

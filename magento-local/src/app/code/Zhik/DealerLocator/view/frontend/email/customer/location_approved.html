@@ -1,0 +1,58 @@
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<!--@subject {{trans "Your dealer location has been approved"}} @-->
+<!--@vars {
+"var location.getName()":"Location Name",
+"var location.getAddress()":"Address",
+"var customer.name":"Customer Name",
+"var store.frontend_name":"Store Name"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table class="message-details">
+    <tr>
+        <td>
+            <h1 style="color: #5cb85c;">{{trans "Great news! Your location has been approved"}}</h1>
+            
+            <p>{{trans "Dear %customer_name," customer_name=$customer.name|raw}}</p>
+            
+            <p>{{trans "We're pleased to inform you that your dealer location '%location_name' has been approved and is now active." location_name=$location.getName()|raw}}</p>
+            
+            <table class="order-details" style="background-color: #f0f8ff; padding: 15px; margin: 20px 0;">
+                <tr>
+                    <td>
+                        <h3 style="margin-top: 0;">{{trans "Approved Location:"}}</h3>
+                        <strong>{{var location.getName()}}</strong><br/>
+                        {{var location.getAddress()}}<br/>
+                        {{var location.getCity()}}, {{var location.getState()}} {{var location.getPostalCode()}}
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "Your location is now visible to customers searching for dealers in your area. You can continue to manage and update your location information through your account."}}</p>
+            
+            <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td align="center" class="button-primary" style="background-color: #5cb85c;">
+                                    <a href="{{store url='customer/account/'}}" target="_blank">{{trans "Manage My Locations"}}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "Thank you for being a valued partner!"}}</p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

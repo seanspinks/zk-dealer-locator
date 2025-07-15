@@ -1,0 +1,70 @@
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<!--@subject {{trans "Your dealer location has been submitted"}} @-->
+<!--@vars {
+"var location.getName()":"Location Name",
+"var location.getAddress()":"Address",
+"var location.getCity()":"City",
+"var location.getState()":"State",
+"var location.getPostalCode()":"Postal Code",
+"var customer.name":"Customer Name",
+"var store.frontend_name":"Store Name",
+"var store_email":"Store Email",
+"var store_phone":"Store Phone"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table class="message-details">
+    <tr>
+        <td>
+            <h1>{{trans "Thank you for submitting your dealer location!"}}</h1>
+            
+            <p>{{trans "Dear %customer_name," customer_name=$customer.name|raw}}</p>
+            
+            <p>{{trans "Your dealer location has been successfully submitted and is currently pending approval. We will review your submission and notify you once it has been processed."}}</p>
+            
+            <h3>{{trans "Location Details:"}}</h3>
+            
+            <table class="order-details">
+                <tr>
+                    <td class="address-details">
+                        <strong>{{trans "Location Name:"}}</strong> {{var location.getName()}}<br/>
+                        <strong>{{trans "Address:"}}</strong> {{var location.getAddress()}}<br/>
+                        <strong>{{trans "City:"}}</strong> {{var location.getCity()}}<br/>
+                        {{depend location.getState()}}
+                            <strong>{{trans "State/Province:"}}</strong> {{var location.getState()}}<br/>
+                        {{/depend}}
+                        <strong>{{trans "Postal Code:"}}</strong> {{var location.getPostalCode()}}<br/>
+                        <strong>{{trans "Phone:"}}</strong> {{var location.getPhone()}}<br/>
+                        <strong>{{trans "Email:"}}</strong> {{var location.getEmail()}}
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "You can view and manage your dealer locations by logging into your account at any time."}}</p>
+            
+            <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td align="center" class="button-primary">
+                                    <a href="{{store url='customer/account/'}}" target="_blank">{{trans "View My Locations"}}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "If you have any questions, please contact us at"}} <a href="mailto:{{config path='trans_email/ident_support/email'}}">{{config path='trans_email/ident_support/email'}}</a></p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}

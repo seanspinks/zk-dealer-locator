@@ -21,6 +21,7 @@ use Zhik\DealerLocator\Api\Data\LocationSearchResultsInterfaceFactory;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 use Zhik\DealerLocator\Model\ResourceModel\Location as ResourceLocation;
 use Zhik\DealerLocator\Model\ResourceModel\Location\CollectionFactory as LocationCollectionFactory;
+use Zhik\DealerLocator\Helper\Email as EmailHelper;
 
 /**
  * Location repository implementation
@@ -58,12 +59,18 @@ class LocationRepository implements LocationRepositoryInterface
     private $dateTime;
 
     /**
+     * @var EmailHelper
+     */
+    private $emailHelper;
+
+    /**
      * @param ResourceLocation $resource
      * @param LocationInterfaceFactory $locationFactory
      * @param LocationCollectionFactory $locationCollectionFactory
      * @param LocationSearchResultsInterfaceFactory $searchResultsFactory
      * @param CollectionProcessorInterface $collectionProcessor
      * @param DateTime $dateTime
+     * @param EmailHelper $emailHelper
      */
     public function __construct(
         ResourceLocation $resource,
@@ -71,7 +78,8 @@ class LocationRepository implements LocationRepositoryInterface
         LocationCollectionFactory $locationCollectionFactory,
         LocationSearchResultsInterfaceFactory $searchResultsFactory,
         CollectionProcessorInterface $collectionProcessor,
-        DateTime $dateTime
+        DateTime $dateTime,
+        EmailHelper $emailHelper
     ) {
         $this->resource = $resource;
         $this->locationFactory = $locationFactory;
@@ -79,6 +87,7 @@ class LocationRepository implements LocationRepositoryInterface
         $this->searchResultsFactory = $searchResultsFactory;
         $this->collectionProcessor = $collectionProcessor;
         $this->dateTime = $dateTime;
+        $this->emailHelper = $emailHelper;
     }
 
     /**
@@ -230,7 +239,12 @@ class LocationRepository implements LocationRepositoryInterface
         $location->setApprovedBy($adminUserId);
         $location->setRejectionReason(null);
         
-        return $this->save($location);
+        $savedLocation = $this->save($location);
+        
+        // Send approval email to customer
+        $this->emailHelper->sendLocationApproved($savedLocation);
+        
+        return $savedLocation;
     }
 
     /**
@@ -249,6 +263,11 @@ class LocationRepository implements LocationRepositoryInterface
         $location->setApprovedAt($this->dateTime->gmtDate());
         $location->setApprovedBy($adminUserId);
         
-        return $this->save($location);
+        $savedLocation = $this->save($location);
+        
+        // Send rejection email to customer
+        $this->emailHelper->sendLocationRejected($savedLocation);
+        
+        return $savedLocation;
     }
 }

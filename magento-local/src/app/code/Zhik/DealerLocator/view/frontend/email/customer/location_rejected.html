@@ -1,0 +1,59 @@
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<!--@subject {{trans "Your dealer location requires changes"}} @-->
+<!--@vars {
+"var location.getName()":"Location Name",
+"var location.getRejectionReason()":"Rejection Reason",
+"var customer.name":"Customer Name",
+"var store.frontend_name":"Store Name"
+} @-->
+
+{{template config_path="design/email/header_template"}}
+
+<table class="message-details">
+    <tr>
+        <td>
+            <h1>{{trans "Your dealer location needs attention"}}</h1>
+            
+            <p>{{trans "Dear %customer_name," customer_name=$customer.name|raw}}</p>
+            
+            <p>{{trans "Thank you for submitting your dealer location. After reviewing your submission, we need you to make some changes before we can approve it."}}</p>
+            
+            <table class="order-details" style="background-color: #fff5f5; padding: 15px; margin: 20px 0; border-left: 4px solid #d9534f;">
+                <tr>
+                    <td>
+                        <h3 style="margin-top: 0; color: #d9534f;">{{trans "Location:"}}</h3>
+                        <strong>{{var location.getName()}}</strong><br/><br/>
+                        
+                        <strong>{{trans "Reason for changes needed:"}}</strong><br/>
+                        {{var location.getRejectionReason()|raw}}
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "Please update your location information based on the feedback above. Once you've made the necessary changes, we'll review it again."}}</p>
+            
+            <table class="button" width="100%" border="0" cellspacing="0" cellpadding="0">
+                <tr>
+                    <td>
+                        <table border="0" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td align="center" class="button-primary">
+                                    <a href="{{store url='customer/account/'}}" target="_blank">{{trans "Update My Location"}}</a>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+            
+            <p>{{trans "If you have any questions about the required changes, please don't hesitate to contact us at"}} <a href="mailto:{{config path='trans_email/ident_support/email'}}">{{config path='trans_email/ident_support/email'}}</a></p>
+        </td>
+    </tr>
+</table>
+
+{{template config_path="design/email/footer_template"}}
