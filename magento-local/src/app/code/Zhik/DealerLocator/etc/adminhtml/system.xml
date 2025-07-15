@@ -1,0 +1,111 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <section id="dealerlocator" translate="label" type="text" sortOrder="340" showInDefault="1" showInWebsite="1" showInStore="1">
+            <label>Dealer Locator</label>
+            <tab>general</tab>
+            <resource>Zhik_DealerLocator::configuration</resource>
+            <group id="general" translate="label" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General Settings</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Dealer Locator</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="require_approval" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Require Admin Approval</label>
+                    <comment>If enabled, new locations must be approved by admin before becoming visible</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="auto_approve" translate="label comment" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Auto-approve Updates</label>
+                    <comment>Automatically approve updates to already approved locations</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="require_approval">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="google_maps" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Google Maps Configuration</label>
+                <field id="api_key" translate="label comment" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Google Maps API Key</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment><![CDATA[Get your API key from <a href="https://console.cloud.google.com/google/maps-apis" target="_blank">Google Cloud Console</a>]]></comment>
+                </field>
+                <field id="default_latitude" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Map Latitude</label>
+                    <comment>Default center latitude for map display</comment>
+                    <validate>validate-number</validate>
+                </field>
+                <field id="default_longitude" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Map Longitude</label>
+                    <comment>Default center longitude for map display</comment>
+                    <validate>validate-number</validate>
+                </field>
+                <field id="default_zoom" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Map Zoom</label>
+                    <comment>Default zoom level (1-20)</comment>
+                    <validate>validate-digits validate-digits-range digits-range-1-20</validate>
+                </field>
+            </group>
+            <group id="email" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Email Notifications</label>
+                <field id="send_customer_notifications" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Customer Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="send_admin_notifications" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Send Admin Notifications</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="admin_email" translate="label comment" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin Notification Email</label>
+                    <comment>Email address to receive new submission notifications</comment>
+                    <validate>validate-email</validate>
+                    <depends>
+                        <field id="send_admin_notifications">1</field>
+                    </depends>
+                </field>
+            </group>
+            <group id="fields" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Field Configuration</label>
+                <field id="hours_enabled" translate="label" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Hours Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="hours_required" translate="label" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Hours Field Required</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="hours_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="website_enabled" translate="label" type="select" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Website Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="website_required" translate="label" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Website Field Required</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <depends>
+                        <field id="website_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="description_enabled" translate="label" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Description Field</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="image_enabled" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Image Upload</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+        </section>
+    </system>
+</config>

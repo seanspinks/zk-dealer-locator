@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <dealerlocator>
+            <general>
+                <enabled>1</enabled>
+                <require_approval>1</require_approval>
+                <auto_approve>0</auto_approve>
+            </general>
+            <google_maps>
+                <default_latitude>40.7128</default_latitude>
+                <default_longitude>-74.0060</default_longitude>
+                <default_zoom>10</default_zoom>
+            </google_maps>
+            <email>
+                <send_customer_notifications>1</send_customer_notifications>
+                <send_admin_notifications>1</send_admin_notifications>
+            </email>
+            <fields>
+                <hours_enabled>1</hours_enabled>
+                <hours_required>0</hours_required>
+                <website_enabled>1</website_enabled>
+                <website_required>0</website_required>
+                <description_enabled>1</description_enabled>
+                <image_enabled>1</image_enabled>
+            </fields>
+        </dealerlocator>
+    </default>
+</config>
