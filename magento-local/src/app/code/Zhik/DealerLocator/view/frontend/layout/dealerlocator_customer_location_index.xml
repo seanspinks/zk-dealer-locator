@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <body>
+        <referenceBlock name="page.main.title">
+            <action method="setPageTitle">
+                <argument name="title" xsi:type="string" translate="true">My Dealer Locations</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Zhik\DealerLocator\Block\Customer\Account\Locations" 
+                   name="customer.account.dealer.locations" 
+                   template="Zhik_DealerLocator::customer/location/list.phtml"
+                   cacheable="false">
+                <arguments>
+                    <argument name="css_class" xsi:type="string">dealer-locations-list</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

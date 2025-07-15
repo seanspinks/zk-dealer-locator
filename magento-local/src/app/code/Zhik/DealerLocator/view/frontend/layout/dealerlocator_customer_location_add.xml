@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <update handle="customer_account"/>
+    <head>
+        <css src="Zhik_DealerLocator::css/location-form.css"/>
+    </head>
+    <body>
+        <referenceBlock name="page.main.title">
+            <action method="setPageTitle">
+                <argument name="title" xsi:type="string" translate="true">Add New Location</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Zhik\DealerLocator\Block\Customer\Location\Form" 
+                   name="customer.dealer.location.form" 
+                   template="Zhik_DealerLocator::customer/location/form.phtml"
+                   cacheable="false">
+                <arguments>
+                    <argument name="css_class" xsi:type="string">dealer-location-form</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

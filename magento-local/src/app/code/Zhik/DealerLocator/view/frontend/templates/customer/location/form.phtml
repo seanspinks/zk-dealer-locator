@@ -1,0 +1,377 @@
+<?php
+/**
+ * @var \Zhik\DealerLocator\Block\Customer\Location\Form $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$location = $block->getLocation();
+$formData = $block->getFormData();
+?>
+
+<form class="form dealer-location-form" 
+      action="<?= $escaper->escapeUrl($block->getFormAction()) ?>" 
+      method="post" 
+      id="dealer-location-form"
+      data-mage-init='{"validation":{}}'>
+    
+    <?= $block->getBlockHtml('formkey') ?>
+    
+    <?php if ($location->getLocationId()): ?>
+        <input type="hidden" name="location_id" value="<?= $escaper->escapeHtmlAttr($location->getLocationId()) ?>" />
+    <?php endif; ?>
+    
+    <fieldset class="fieldset">
+        <legend class="legend">
+            <span><?= $escaper->escapeHtml(__('Location Information')) ?></span>
+        </legend>
+        
+        <div class="field name required">
+            <label class="label" for="name">
+                <span><?= $escaper->escapeHtml(__('Location Name')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="name" 
+                       id="name" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getName()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('Location Name')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true}" />
+            </div>
+        </div>
+        
+        <div class="field address required">
+            <label class="label" for="address">
+                <span><?= $escaper->escapeHtml(__('Street Address')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="address" 
+                       id="address" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getAddress()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('Street Address')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true}"
+                       placeholder="<?= $escaper->escapeHtmlAttr(__('Start typing to search...')) ?>" />
+            </div>
+        </div>
+        
+        <div class="field city required">
+            <label class="label" for="city">
+                <span><?= $escaper->escapeHtml(__('City')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="city" 
+                       id="city" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getCity()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('City')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true}" />
+            </div>
+        </div>
+        
+        <div class="field state">
+            <label class="label" for="state">
+                <span><?= $escaper->escapeHtml(__('State/Province')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="state" 
+                       id="state" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getState()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('State/Province')) ?>" 
+                       class="input-text" />
+            </div>
+        </div>
+        
+        <div class="field postal_code required">
+            <label class="label" for="postal_code">
+                <span><?= $escaper->escapeHtml(__('Postal Code')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="postal_code" 
+                       id="postal_code" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getPostalCode()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('Postal Code')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true}" />
+            </div>
+        </div>
+        
+        <div class="field country required">
+            <label class="label" for="country">
+                <span><?= $escaper->escapeHtml(__('Country')) ?></span>
+            </label>
+            <div class="control">
+                <select name="country" id="country" class="select" data-validate="{required:true}">
+                    <option value=""><?= $escaper->escapeHtml(__('Please Select')) ?></option>
+                    <?php foreach ($block->getCountries() as $country): ?>
+                        <option value="<?= $escaper->escapeHtmlAttr($country->getId()) ?>" 
+                                <?= ($formData->getCountry() == $country->getId()) ? 'selected="selected"' : '' ?>>
+                            <?= $escaper->escapeHtml($country->getName()) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        </div>
+        
+        <input type="hidden" name="latitude" id="latitude" value="<?= $escaper->escapeHtmlAttr($formData->getLatitude()) ?>" />
+        <input type="hidden" name="longitude" id="longitude" value="<?= $escaper->escapeHtmlAttr($formData->getLongitude()) ?>" />
+    </fieldset>
+    
+    <fieldset class="fieldset">
+        <legend class="legend">
+            <span><?= $escaper->escapeHtml(__('Contact Information')) ?></span>
+        </legend>
+        
+        <div class="field phone required">
+            <label class="label" for="phone">
+                <span><?= $escaper->escapeHtml(__('Phone Number')) ?></span>
+            </label>
+            <div class="control">
+                <input type="text" 
+                       name="phone" 
+                       id="phone" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getPhone()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('Phone Number')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true}" />
+            </div>
+        </div>
+        
+        <div class="field email required">
+            <label class="label" for="email">
+                <span><?= $escaper->escapeHtml(__('Email Address')) ?></span>
+            </label>
+            <div class="control">
+                <input type="email" 
+                       name="email" 
+                       id="email" 
+                       value="<?= $escaper->escapeHtmlAttr($formData->getEmail()) ?>" 
+                       title="<?= $escaper->escapeHtmlAttr(__('Email Address')) ?>" 
+                       class="input-text" 
+                       data-validate="{required:true, 'validate-email':true}" />
+            </div>
+        </div>
+        
+        <?php if ($block->isFieldEnabled('website')): ?>
+            <div class="field website <?= $block->isFieldRequired('website') ? 'required' : '' ?>">
+                <label class="label" for="website">
+                    <span><?= $escaper->escapeHtml(__('Website')) ?></span>
+                </label>
+                <div class="control">
+                    <input type="url" 
+                           name="website" 
+                           id="website" 
+                           value="<?= $escaper->escapeHtmlAttr($formData->getWebsite()) ?>" 
+                           title="<?= $escaper->escapeHtmlAttr(__('Website')) ?>" 
+                           class="input-text" 
+                           data-validate="{<?= $block->isFieldRequired('website') ? 'required:true,' : '' ?>'validate-url':true}" />
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($block->isFieldEnabled('hours')): ?>
+            <div class="field hours <?= $block->isFieldRequired('hours') ? 'required' : '' ?>">
+                <label class="label" for="hours">
+                    <span><?= $escaper->escapeHtml(__('Business Hours')) ?></span>
+                </label>
+                <div class="control">
+                    <textarea name="hours" 
+                              id="hours" 
+                              title="<?= $escaper->escapeHtmlAttr(__('Business Hours')) ?>" 
+                              class="input-text"
+                              rows="4"
+                              <?= $block->isFieldRequired('hours') ? 'data-validate="{required:true}"' : '' ?>><?= $escaper->escapeHtml($formData->getHours()) ?></textarea>
+                </div>
+            </div>
+        <?php endif; ?>
+        
+        <?php if ($block->isFieldEnabled('description')): ?>
+            <div class="field description">
+                <label class="label" for="description">
+                    <span><?= $escaper->escapeHtml(__('Description')) ?></span>
+                </label>
+                <div class="control">
+                    <textarea name="description" 
+                              id="description" 
+                              title="<?= $escaper->escapeHtmlAttr(__('Description')) ?>" 
+                              class="input-text"
+                              rows="4"><?= $escaper->escapeHtml($formData->getDescription()) ?></textarea>
+                </div>
+            </div>
+        <?php endif; ?>
+    </fieldset>
+    
+    <?php $tags = $block->getAvailableTags(); ?>
+    <?php if (!empty($tags)): ?>
+        <fieldset class="fieldset">
+            <legend class="legend">
+                <span><?= $escaper->escapeHtml(__('Categories')) ?></span>
+            </legend>
+            <div class="field tags">
+                <div class="control">
+                    <div class="tag-options">
+                        <?php foreach ($tags as $tag): ?>
+                            <div class="tag-option">
+                                <input type="checkbox" 
+                                       name="tag_ids[]" 
+                                       id="tag_<?= $escaper->escapeHtmlAttr($tag->getTagId()) ?>" 
+                                       value="<?= $escaper->escapeHtmlAttr($tag->getTagId()) ?>"
+                                       class="checkbox"
+                                       <?= $block->hasTag($tag->getTagId()) ? 'checked="checked"' : '' ?> />
+                                <label for="tag_<?= $escaper->escapeHtmlAttr($tag->getTagId()) ?>">
+                                    <span><?= $escaper->escapeHtml($tag->getTagName()) ?></span>
+                                    <?php if ($tag->getDescription()): ?>
+                                        <small><?= $escaper->escapeHtml($tag->getDescription()) ?></small>
+                                    <?php endif; ?>
+                                </label>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+    <?php endif; ?>
+    
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="submit" class="action save primary" title="<?= $escaper->escapeHtmlAttr(__('Save Location')) ?>">
+                <span><?= $escaper->escapeHtml(__('Save Location')) ?></span>
+            </button>
+        </div>
+        <div class="secondary">
+            <a class="action back" href="<?= $escaper->escapeUrl($block->getBackUrl()) ?>">
+                <span><?= $escaper->escapeHtml(__('Back')) ?></span>
+            </a>
+        </div>
+    </div>
+</form>
+
+<?php $apiKey = $block->getGoogleMapsApiKey(); ?>
+<?php if ($apiKey): ?>
+<script>
+require([
+    'jquery',
+    'mage/translate'
+], function($, $t) {
+    'use strict';
+    
+    // Load Google Maps API
+    var script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key=<?= $escaper->escapeJs($apiKey) ?>&libraries=places&callback=initAutocomplete';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    
+    window.initAutocomplete = function() {
+        var addressInput = document.getElementById('address');
+        var autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            types: ['address']
+        });
+        
+        autocomplete.addListener('place_changed', function() {
+            var place = autocomplete.getPlace();
+            
+            if (!place.geometry) {
+                return;
+            }
+            
+            // Update coordinates
+            $('#latitude').val(place.geometry.location.lat());
+            $('#longitude').val(place.geometry.location.lng());
+            
+            // Parse address components
+            var addressComponents = place.address_components;
+            var componentForm = {
+                street_number: 'short_name',
+                route: 'long_name',
+                locality: 'long_name',
+                administrative_area_level_1: 'short_name',
+                country: 'short_name',
+                postal_code: 'short_name'
+            };
+            
+            var streetNumber = '';
+            var route = '';
+            
+            for (var i = 0; i < addressComponents.length; i++) {
+                var addressType = addressComponents[i].types[0];
+                if (componentForm[addressType]) {
+                    var val = addressComponents[i][componentForm[addressType]];
+                    
+                    switch(addressType) {
+                        case 'street_number':
+                            streetNumber = val;
+                            break;
+                        case 'route':
+                            route = val;
+                            break;
+                        case 'locality':
+                            $('#city').val(val);
+                            break;
+                        case 'administrative_area_level_1':
+                            $('#state').val(val);
+                            break;
+                        case 'postal_code':
+                            $('#postal_code').val(val);
+                            break;
+                        case 'country':
+                            $('#country').val(val).trigger('change');
+                            break;
+                    }
+                }
+            }
+            
+            // Combine street number and route
+            if (streetNumber && route) {
+                $('#address').val(streetNumber + ' ' + route);
+            }
+        });
+    };
+});
+</script>
+<?php endif; ?>
+
+<style>
+.dealer-location-form .fieldset {
+    margin-bottom: 30px;
+}
+
+.tag-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tag-option {
+    display: flex;
+    align-items: flex-start;
+}
+
+.tag-option input[type="checkbox"] {
+    margin-top: 3px;
+    margin-right: 8px;
+}
+
+.tag-option label {
+    display: block;
+    cursor: pointer;
+}
+
+.tag-option label small {
+    display: block;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 2px;
+}
+
+@media (max-width: 768px) {
+    .tag-options {
+        grid-template-columns: 1fr;
+    }
+}
+</style>

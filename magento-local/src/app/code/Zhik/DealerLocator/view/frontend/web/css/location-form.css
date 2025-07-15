@@ -1,0 +1,182 @@
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+
+/* Location Form Styles */
+.dealer-location-form {
+    max-width: 800px;
+}
+
+.dealer-location-form .fieldset {
+    background: #f8f8f8;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 5px;
+}
+
+.dealer-location-form .legend {
+    font-size: 1.2em;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.dealer-location-form .field {
+    margin-bottom: 20px;
+}
+
+.dealer-location-form .field.required .label:after {
+    content: ' *';
+    color: #e02b27;
+}
+
+.dealer-location-form .control {
+    position: relative;
+}
+
+.dealer-location-form input[type="text"],
+.dealer-location-form input[type="email"],
+.dealer-location-form input[type="url"],
+.dealer-location-form select,
+.dealer-location-form textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 14px;
+}
+
+.dealer-location-form input[type="text"]:focus,
+.dealer-location-form input[type="email"]:focus,
+.dealer-location-form input[type="url"]:focus,
+.dealer-location-form select:focus,
+.dealer-location-form textarea:focus {
+    border-color: #006bb4;
+    outline: none;
+}
+
+/* Google Places Autocomplete */
+.pac-container {
+    z-index: 10000;
+    font-family: inherit;
+}
+
+.pac-item {
+    padding: 10px;
+    font-size: 14px;
+}
+
+.pac-item:hover {
+    background-color: #f5f5f5;
+}
+
+/* Tag Options */
+.tag-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 10px;
+}
+
+.tag-option {
+    display: flex;
+    align-items: flex-start;
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+}
+
+.tag-option:hover {
+    border-color: #006bb4;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.tag-option input[type="checkbox"] {
+    margin-top: 3px;
+    margin-right: 8px;
+    width: auto;
+}
+
+.tag-option label {
+    display: block;
+    cursor: pointer;
+    flex: 1;
+}
+
+.tag-option label span {
+    font-weight: 500;
+    color: #333;
+}
+
+.tag-option label small {
+    display: block;
+    color: #666;
+    font-size: 0.9em;
+    margin-top: 2px;
+}
+
+/* Actions */
+.dealer-location-form .actions-toolbar {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.dealer-location-form .action {
+    padding: 10px 20px;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.dealer-location-form .action.primary {
+    background: #006bb4;
+    color: #fff;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.dealer-location-form .action.primary:hover {
+    background: #005094;
+}
+
+.dealer-location-form .action.back {
+    color: #006bb4;
+}
+
+.dealer-location-form .action.back:hover {
+    text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .dealer-location-form .fieldset {
+        padding: 15px;
+    }
+    
+    .tag-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .dealer-location-form .actions-toolbar {
+        flex-direction: column-reverse;
+        gap: 10px;
+    }
+    
+    .dealer-location-form .actions-toolbar > div {
+        width: 100%;
+        text-align: center;
+    }
+    
+    .dealer-location-form .action {
+        width: 100%;
+        display: block;
+    }
+}

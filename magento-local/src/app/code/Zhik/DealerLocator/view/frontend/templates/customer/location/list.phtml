@@ -1,0 +1,205 @@
+<?php
+/**
+ * @var \Zhik\DealerLocator\Block\Customer\Account\Locations $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$locationsByStatus = $block->getLocationsByStatus();
+?>
+
+<div class="dealer-locations-container">
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="button" 
+                    class="action primary" 
+                    onclick="window.location='<?= $escaper->escapeUrl($block->getAddUrl()) ?>'">
+                <span><?= $escaper->escapeHtml(__('Add New Location')) ?></span>
+            </button>
+        </div>
+    </div>
+
+    <?php if (empty($locationsByStatus['all'])): ?>
+        <div class="message info empty">
+            <span><?= $escaper->escapeHtml(__('You have not added any dealer locations yet.')) ?></span>
+        </div>
+    <?php else: ?>
+        <div class="dealer-locations-tabs" data-mage-init='{"tabs":{"openedState":"active"}}'>
+            <ul class="tabs-nav" role="tablist">
+                <li class="tab-nav-item" role="tab" aria-selected="true">
+                    <a href="#tab-all" class="tab-nav-link">
+                        <?= $escaper->escapeHtml(__('All')) ?> 
+                        (<?= count($locationsByStatus['all']) ?>)
+                    </a>
+                </li>
+                <li class="tab-nav-item" role="tab">
+                    <a href="#tab-approved" class="tab-nav-link">
+                        <?= $escaper->escapeHtml(__('Approved')) ?> 
+                        (<?= count($locationsByStatus['approved']) ?>)
+                    </a>
+                </li>
+                <li class="tab-nav-item" role="tab">
+                    <a href="#tab-pending" class="tab-nav-link">
+                        <?= $escaper->escapeHtml(__('Pending')) ?> 
+                        (<?= count($locationsByStatus['pending']) ?>)
+                    </a>
+                </li>
+                <li class="tab-nav-item" role="tab">
+                    <a href="#tab-rejected" class="tab-nav-link">
+                        <?= $escaper->escapeHtml(__('Rejected')) ?> 
+                        (<?= count($locationsByStatus['rejected']) ?>)
+                    </a>
+                </li>
+            </ul>
+
+            <?php foreach (['all', 'approved', 'pending', 'rejected'] as $status): ?>
+                <div id="tab-<?= $status ?>" class="tabs-content" role="tabpanel">
+                    <?php if (empty($locationsByStatus[$status])): ?>
+                        <div class="message info">
+                            <span><?= $escaper->escapeHtml(__('No %1 locations found.', $status)) ?></span>
+                        </div>
+                    <?php else: ?>
+                        <div class="table-wrapper dealer-locations">
+                            <table class="data table" id="dealer-locations-table-<?= $status ?>">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" class="col name"><?= $escaper->escapeHtml(__('Location Name')) ?></th>
+                                        <th scope="col" class="col address"><?= $escaper->escapeHtml(__('Address')) ?></th>
+                                        <th scope="col" class="col status"><?= $escaper->escapeHtml(__('Status')) ?></th>
+                                        <th scope="col" class="col date"><?= $escaper->escapeHtml(__('Created')) ?></th>
+                                        <th scope="col" class="col actions"><?= $escaper->escapeHtml(__('Actions')) ?></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($locationsByStatus[$status] as $location): ?>
+                                        <tr>
+                                            <td data-th="<?= $escaper->escapeHtml(__('Location Name')) ?>" class="col name">
+                                                <strong><?= $escaper->escapeHtml($location->getName()) ?></strong>
+                                            </td>
+                                            <td data-th="<?= $escaper->escapeHtml(__('Address')) ?>" class="col address">
+                                                <?= $escaper->escapeHtml($location->getAddress()) ?><br/>
+                                                <?= $escaper->escapeHtml($location->getCity()) ?>, 
+                                                <?= $escaper->escapeHtml($location->getState()) ?> 
+                                                <?= $escaper->escapeHtml($location->getPostalCode()) ?>
+                                            </td>
+                                            <td data-th="<?= $escaper->escapeHtml(__('Status')) ?>" class="col status">
+                                                <span class="status-badge <?= $escaper->escapeHtmlAttr($block->getStatusClass($location->getStatus())) ?>">
+                                                    <?= $escaper->escapeHtml($block->getStatusLabel($location->getStatus())) ?>
+                                                </span>
+                                                <?php if ($location->getStatus() === 'rejected' && $location->getRejectionReason()): ?>
+                                                    <div class="rejection-reason">
+                                                        <small><?= $escaper->escapeHtml($location->getRejectionReason()) ?></small>
+                                                    </div>
+                                                <?php endif; ?>
+                                            </td>
+                                            <td data-th="<?= $escaper->escapeHtml(__('Created')) ?>" class="col date">
+                                                <?= $escaper->escapeHtml($block->formatDate($location->getCreatedAt(), \IntlDateFormatter::MEDIUM)) ?>
+                                            </td>
+                                            <td data-th="<?= $escaper->escapeHtml(__('Actions')) ?>" class="col actions">
+                                                <div class="actions-primary">
+                                                    <?php if ($block->canEdit($location)): ?>
+                                                        <a href="<?= $escaper->escapeUrl($block->getEditUrl($location->getLocationId())) ?>" 
+                                                           class="action edit">
+                                                            <span><?= $escaper->escapeHtml(__('Edit')) ?></span>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                    <?php if ($block->canDelete($location)): ?>
+                                                        <a href="#" 
+                                                           class="action delete"
+                                                           data-confirm="<?= $escaper->escapeHtmlAttr(__('Are you sure you want to delete this location?')) ?>"
+                                                           data-post='<?= /* @noEscape */ $block->getDeletePostJson($location->getLocationId()) ?>'>
+                                                            <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
+                                                        </a>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</div>
+
+<style>
+.dealer-locations-container {
+    margin-top: 20px;
+}
+
+.dealer-locations-tabs {
+    margin-top: 30px;
+}
+
+.tabs-nav {
+    display: flex;
+    border-bottom: 1px solid #ccc;
+    margin-bottom: 20px;
+}
+
+.tab-nav-item {
+    margin-right: 20px;
+}
+
+.tab-nav-link {
+    display: block;
+    padding: 10px 15px;
+    text-decoration: none;
+    color: #333;
+    border-bottom: 2px solid transparent;
+}
+
+.tab-nav-item[aria-selected="true"] .tab-nav-link {
+    border-bottom-color: #006bb4;
+    color: #006bb4;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 3px;
+    font-size: 12px;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+.status-pending {
+    background-color: #ffa500;
+    color: #fff;
+}
+
+.status-approved {
+    background-color: #5cb85c;
+    color: #fff;
+}
+
+.status-rejected {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+.rejection-reason {
+    margin-top: 5px;
+    color: #d9534f;
+}
+
+.actions-primary a {
+    margin-right: 10px;
+}
+
+.dealer-locations table {
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    .tabs-nav {
+        flex-wrap: wrap;
+    }
+    
+    .tab-nav-item {
+        margin-bottom: 10px;
+    }
+}
+</style>
