@@ -1,0 +1,125 @@
+# Magento 2 gitignore
+
+# Magento directories
+/magento-local/
+/app/code/Magento/
+/app/design/*/Magento/
+/app/etc/
+/app/i18n/
+/app/*/
+/bin/
+/dev/
+/generated/
+/lib/
+/phpserver/
+/pub/media/*
+/pub/static/*
+/setup/
+/update/
+/var/
+/vendor/
+
+# Magento files
+/.htaccess
+/.htaccess.sample
+/.magento.env.yaml
+/.php_cs
+/.php_cs.cache
+/auth.json
+/composer.json
+/composer.lock
+/grunt-config.json
+/Gruntfile.js
+/nginx.conf.sample
+/package.json
+/package-lock.json
+/php.ini.sample
+
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+nbproject/
+.buildpath
+
+# Logs
+*.log
+/var/log/*
+/var/report/*
+
+# Cache and temporary files
+/var/cache/*
+/var/page_cache/*
+/var/session/*
+/var/tmp/*
+/var/view_preprocessed/*
+/pub/static/*
+!/pub/static/.htaccess
+
+# Generated files
+/generated/*
+!/generated/.htaccess
+
+# Node modules
+node_modules/
+
+# Test files
+/dev/tests/acceptance/tests/_output/*
+/dev/tests/api-functional/tests/_output/*
+/dev/tests/functional/tests/_output/*
+/dev/tests/integration/tmp/*
+/dev/tests/integration/var/*
+
+# Other project files
+/modules/
+/Portal/
+/iframe-app/
+/Docs/
+Screenshots/
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.pdf
+
+# Environment files
+.env
+.env.*
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Compiled files
+*.pyc
+*.pyo
+__pycache__/
+
+# Database dumps
+*.sql
+*.sql.gz
+
+# Archives
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Claude AI files
+.claude/
+CLAUDE.md
+
+# PRD and documentation
+prd.md
