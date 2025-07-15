@@ -161,6 +161,9 @@
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="source" xsi:type="string">location</item>
+                    <item name="component" xsi:type="string">Zhik_DealerLocator/js/form/element/address-autocomplete</item>
+                    <item name="elementTmpl" xsi:type="string">Zhik_DealerLocator/form/element/address-autocomplete</item>
+                    <item name="autocomplete" xsi:type="string">new-password</item>
                 </item>
             </argument>
             <settings>

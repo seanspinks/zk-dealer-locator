@@ -39,13 +39,13 @@ class Options implements OptionSourceInterface
         $options = [];
         
         $collection = $this->tagCollectionFactory->create();
-        $collection->addIsActiveFilter()
-                   ->setOrder('name', 'ASC');
+        $collection->addFieldToFilter('is_active', 1)
+                   ->setOrder('tag_name', 'ASC');
         
         foreach ($collection as $tag) {
             $options[] = [
                 'value' => $tag->getTagId(),
-                'label' => $tag->getName()
+                'label' => $tag->getTagName()
             ];
         }
         
