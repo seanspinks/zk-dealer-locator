@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ * See COPYING.txt for license details.
+ */
+-->
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Webapi:etc/webapi.xsd">
+    <!-- Location endpoints -->
+    <route url="/V1/dealerlocator/locations" method="GET">
+        <service class="Zhik\DealerLocator\Api\LocationRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/:locationId" method="GET">
+        <service class="Zhik\DealerLocator\Api\LocationRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/search" method="GET">
+        <service class="Zhik\DealerLocator\Api\LocationSearchInterface" method="search"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/nearby" method="GET">
+        <service class="Zhik\DealerLocator\Api\LocationSearchInterface" method="searchNearby"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <!-- Customer location management -->
+    <route url="/V1/dealerlocator/mine/locations" method="GET">
+        <service class="Zhik\DealerLocator\Api\LocationManagementInterface" method="getCustomerLocations"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    
+    <route url="/V1/dealerlocator/mine/locations" method="POST">
+        <service class="Zhik\DealerLocator\Api\LocationManagementInterface" method="saveLocation"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="location.customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    
+    <route url="/V1/dealerlocator/mine/locations/:locationId" method="PUT">
+        <service class="Zhik\DealerLocator\Api\LocationManagementInterface" method="updateLocation"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="location.customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    
+    <route url="/V1/dealerlocator/mine/locations/:locationId" method="DELETE">
+        <service class="Zhik\DealerLocator\Api\LocationManagementInterface" method="deleteLocation"/>
+        <resources>
+            <resource ref="self"/>
+        </resources>
+        <data>
+            <parameter name="customerId" force="true">%customer_id%</parameter>
+        </data>
+    </route>
+    
+    <!-- Admin location management -->
+    <route url="/V1/dealerlocator/locations" method="POST">
+        <service class="Zhik\DealerLocator\Api\LocationRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::locations_save"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/:locationId" method="PUT">
+        <service class="Zhik\DealerLocator\Api\LocationRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::locations_save"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/:locationId" method="DELETE">
+        <service class="Zhik\DealerLocator\Api\LocationRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::locations_delete"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/:locationId/approve" method="POST">
+        <service class="Zhik\DealerLocator\Api\LocationApprovalInterface" method="approve"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::locations_approve"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/locations/:locationId/reject" method="POST">
+        <service class="Zhik\DealerLocator\Api\LocationApprovalInterface" method="reject"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::locations_approve"/>
+        </resources>
+    </route>
+    
+    <!-- Tag endpoints -->
+    <route url="/V1/dealerlocator/tags" method="GET">
+        <service class="Zhik\DealerLocator\Api\TagRepositoryInterface" method="getList"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/tags/:tagId" method="GET">
+        <service class="Zhik\DealerLocator\Api\TagRepositoryInterface" method="getById"/>
+        <resources>
+            <resource ref="anonymous"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/tags" method="POST">
+        <service class="Zhik\DealerLocator\Api\TagRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::tags_save"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/tags/:tagId" method="PUT">
+        <service class="Zhik\DealerLocator\Api\TagRepositoryInterface" method="save"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::tags_save"/>
+        </resources>
+    </route>
+    
+    <route url="/V1/dealerlocator/tags/:tagId" method="DELETE">
+        <service class="Zhik\DealerLocator\Api\TagRepositoryInterface" method="deleteById"/>
+        <resources>
+            <resource ref="Zhik_DealerLocator::tags_delete"/>
+        </resources>
+    </route>
+</routes>

@@ -10,6 +10,8 @@
     <preference for="Zhik\DealerLocator\Api\LocationRepositoryInterface" type="Zhik\DealerLocator\Model\LocationRepository"/>
     <preference for="Zhik\DealerLocator\Api\TagRepositoryInterface" type="Zhik\DealerLocator\Model\TagRepository"/>
     <preference for="Zhik\DealerLocator\Api\LocationManagementInterface" type="Zhik\DealerLocator\Model\LocationManagement"/>
+    <preference for="Zhik\DealerLocator\Api\LocationSearchInterface" type="Zhik\DealerLocator\Model\LocationSearch"/>
+    <preference for="Zhik\DealerLocator\Api\LocationApprovalInterface" type="Zhik\DealerLocator\Model\LocationApproval"/>
     
     <!-- Data interfaces preferences -->
     <preference for="Zhik\DealerLocator\Api\Data\LocationInterface" type="Zhik\DealerLocator\Model\Location"/>
@@ -41,4 +43,9 @@
             <argument name="resourceModel" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Tag</argument>
         </arguments>
     </virtualType>
+    
+    <!-- Plugins -->
+    <type name="Zhik\DealerLocator\Api\LocationRepositoryInterface">
+        <plugin name="dealerlocator_location_extension_attributes" type="Zhik\DealerLocator\Plugin\LocationRepositoryPlugin"/>
+    </type>
 </config>

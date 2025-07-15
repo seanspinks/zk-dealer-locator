@@ -9,7 +9,10 @@ namespace Zhik\DealerLocator\Model;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\HTTP\Client\Curl;
+use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Zhik\DealerLocator\Api\LocationManagementInterface;
+use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 use Zhik\DealerLocator\Model\ResourceModel\Location\CollectionFactory;
 
 /**
@@ -33,18 +36,26 @@ class LocationManagement implements LocationManagementInterface
     private $curl;
 
     /**
+     * @var LocationRepositoryInterface
+     */
+    private $locationRepository;
+
+    /**
      * @param CollectionFactory $locationCollectionFactory
      * @param ScopeConfigInterface $scopeConfig
      * @param Curl $curl
+     * @param LocationRepositoryInterface $locationRepository
      */
     public function __construct(
         CollectionFactory $locationCollectionFactory,
         ScopeConfigInterface $scopeConfig,
-        Curl $curl
+        Curl $curl,
+        LocationRepositoryInterface $locationRepository
     ) {
         $this->locationCollectionFactory = $locationCollectionFactory;
         $this->scopeConfig = $scopeConfig;
         $this->curl = $curl;
+        $this->locationRepository = $locationRepository;
     }
 
     /**
@@ -125,5 +136,52 @@ class LocationManagement implements LocationManagementInterface
     private function getGoogleMapsApiKey(): ?string
     {
         return $this->scopeConfig->getValue('dealerlocator/google_maps/api_key');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getCustomerLocations(int $customerId): array
+    {
+        return $this->locationRepository->getByCustomerId($customerId);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function saveLocation(\Zhik\DealerLocator\Api\Data\LocationInterface $location): \Zhik\DealerLocator\Api\Data\LocationInterface
+    {
+        return $this->locationRepository->save($location);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function updateLocation(int $locationId, \Zhik\DealerLocator\Api\Data\LocationInterface $location): \Zhik\DealerLocator\Api\Data\LocationInterface
+    {
+        $existingLocation = $this->locationRepository->getById($locationId);
+        
+        // Verify ownership
+        if ($existingLocation->getCustomerId() != $location->getCustomerId()) {
+            throw new LocalizedException(__('You are not authorized to update this location.'));
+        }
+        
+        $location->setLocationId($locationId);
+        return $this->locationRepository->save($location);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function deleteLocation(int $locationId, int $customerId): bool
+    {
+        $location = $this->locationRepository->getById($locationId);
+        
+        // Verify ownership
+        if ($location->getCustomerId() != $customerId) {
+            throw new LocalizedException(__('You are not authorized to delete this location.'));
+        }
+        
+        return $this->locationRepository->deleteById($locationId);
     }
 }

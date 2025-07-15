@@ -46,4 +46,38 @@ interface LocationManagementInterface
      * @return array
      */
     public function geocodeAddress(string $address): array;
+
+    /**
+     * Get customer locations
+     *
+     * @param int $customerId
+     * @return \Zhik\DealerLocator\Api\Data\LocationInterface[]
+     */
+    public function getCustomerLocations(int $customerId): array;
+
+    /**
+     * Save location for customer
+     *
+     * @param \Zhik\DealerLocator\Api\Data\LocationInterface $location
+     * @return \Zhik\DealerLocator\Api\Data\LocationInterface
+     */
+    public function saveLocation(\Zhik\DealerLocator\Api\Data\LocationInterface $location): \Zhik\DealerLocator\Api\Data\LocationInterface;
+
+    /**
+     * Update location for customer
+     *
+     * @param int $locationId
+     * @param \Zhik\DealerLocator\Api\Data\LocationInterface $location
+     * @return \Zhik\DealerLocator\Api\Data\LocationInterface
+     */
+    public function updateLocation(int $locationId, \Zhik\DealerLocator\Api\Data\LocationInterface $location): \Zhik\DealerLocator\Api\Data\LocationInterface;
+
+    /**
+     * Delete location for customer
+     *
+     * @param int $locationId
+     * @param int $customerId
+     * @return bool
+     */
+    public function deleteLocation(int $locationId, int $customerId): bool;
 }
