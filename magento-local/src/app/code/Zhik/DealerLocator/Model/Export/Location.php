@@ -275,4 +275,16 @@ class Location extends AbstractEntity
     {
         return [];
     }
+
+    /**
+     * Export one item
+     *
+     * @param mixed $item
+     * @return void
+     */
+    public function exportItem($item)
+    {
+        // This method is required by the abstract class but not used in our implementation
+        // We handle export in the export() method instead
+    }
 }
