@@ -9,6 +9,10 @@
     <update handle="styles"/>
     <body>
         <referenceContainer name="content">
+            <block class="Zhik\DealerLocator\Block\Adminhtml\Config\ApiKey" 
+                   name="dealerlocator.api.key" 
+                   template="Zhik_DealerLocator::config/api_key.phtml" 
+                   before="-" />
             <uiComponent name="dealerlocator_location_form"/>
         </referenceContainer>
     </body>
