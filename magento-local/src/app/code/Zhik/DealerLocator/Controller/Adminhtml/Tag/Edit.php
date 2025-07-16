@@ -84,7 +84,7 @@ class Edit extends Action
         $resultPage->getConfig()->getTitle()->prepend(__('Tags'));
         
         if ($tagId) {
-            $resultPage->getConfig()->getTitle()->prepend($tag->getName());
+            $resultPage->getConfig()->getTitle()->prepend($tag->getTagName());
         } else {
             $resultPage->getConfig()->getTitle()->prepend(__('New Tag'));
         }

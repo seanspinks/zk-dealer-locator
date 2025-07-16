@@ -84,7 +84,7 @@ class MassReject extends Action
 
         foreach ($collection as $location) {
             try {
-                $this->locationRepository->reject($location->getLocationId(), (string)$reason, $adminUserId);
+                $this->locationRepository->reject((int)$location->getLocationId(), (string)$reason, $adminUserId);
                 $rejected++;
             } catch (LocalizedException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());

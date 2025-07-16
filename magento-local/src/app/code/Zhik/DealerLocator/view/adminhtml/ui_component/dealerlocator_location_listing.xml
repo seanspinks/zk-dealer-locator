@@ -9,6 +9,7 @@
     <argument name="data" xsi:type="array">
         <item name="js_config" xsi:type="array">
             <item name="provider" xsi:type="string">dealerlocator_location_listing.dealerlocator_location_listing_data_source</item>
+            <item name="deps" xsi:type="string">dealerlocator_location_listing.dealerlocator_location_listing_data_source</item>
         </item>
     </argument>
     <settings>

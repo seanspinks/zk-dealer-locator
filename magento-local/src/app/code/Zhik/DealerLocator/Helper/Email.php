@@ -121,7 +121,7 @@ class Email extends AbstractHelper
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
-                $store->getId()
+                (int)$store->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to send submission confirmation email: ' . $e->getMessage());
@@ -155,7 +155,7 @@ class Email extends AbstractHelper
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
-                $store->getId()
+                (int)$store->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to send location approved email: ' . $e->getMessage());
@@ -189,7 +189,7 @@ class Email extends AbstractHelper
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
-                $store->getId()
+                (int)$store->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to send location rejected email: ' . $e->getMessage());
@@ -232,7 +232,7 @@ class Email extends AbstractHelper
                 $adminEmail,
                 null,
                 $templateVars,
-                $store->getId()
+                (int)$store->getId()
             );
         } catch (\Exception $e) {
             $this->logger->error('Failed to send admin notification email: ' . $e->getMessage());

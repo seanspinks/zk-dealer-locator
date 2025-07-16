@@ -12,6 +12,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Exception\LocalizedException;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 
@@ -63,39 +64,68 @@ class Approve extends Action
     /**
      * Approve location
      *
-     * @return Json
+     * @return Json|Redirect
      */
     public function execute()
     {
-        /** @var Json $resultJson */
-        $resultJson = $this->resultJsonFactory->create();
-        
         $locationId = (int)$this->getRequest()->getParam('location_id');
+        
+        // Check if this is an AJAX request
+        $isAjax = $this->getRequest()->isAjax();
+        
         if (!$locationId) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => __('Invalid location ID.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => __('Invalid location ID.')
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage(__('Invalid location ID.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         }
 
         try {
             $adminUserId = (int)$this->authSession->getUser()->getId();
             $this->locationRepository->approve($locationId, $adminUserId);
             
-            return $resultJson->setData([
-                'success' => true,
-                'message' => __('Location has been approved.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'success' => true,
+                    'message' => __('Location has been approved.')
+                ]);
+            } else {
+                $this->messageManager->addSuccessMessage(__('Location has been approved.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         } catch (LocalizedException $e) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => $e->getMessage()
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage($e->getMessage());
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         } catch (\Exception $e) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => __('An error occurred while approving the location.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => __('An error occurred while approving the location.')
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage(__('An error occurred while approving the location.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         }
     }
 }

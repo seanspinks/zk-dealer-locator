@@ -71,7 +71,20 @@ class InlineEdit extends Action
                     /** @var \Zhik\DealerLocator\Model\Tag $tag */
                     try {
                         $tag = $this->tagRepository->getById($tagId);
-                        $tag->setData(array_merge($tag->getData(), $postItems[$tagId]));
+                        $tagData = $postItems[$tagId];
+                        
+                        // Handle tag_name field specifically
+                        if (isset($tagData['tag_name'])) {
+                            $tag->setTagName($tagData['tag_name']);
+                        }
+                        
+                        // Set other fields
+                        foreach ($tagData as $key => $value) {
+                            if ($key !== 'tag_name') {
+                                $tag->setData($key, $value);
+                            }
+                        }
+                        
                         $this->tagRepository->save($tag);
                     } catch (\Exception $e) {
                         $messages[] = $this->getErrorWithTagId(

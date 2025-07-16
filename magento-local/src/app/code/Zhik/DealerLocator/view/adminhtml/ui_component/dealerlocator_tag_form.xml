@@ -82,7 +82,7 @@
                 </checkbox>
             </formElements>
         </field>
-        <field name="name" formElement="input">
+        <field name="tag_name" formElement="input">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
                     <item name="source" xsi:type="string">tag</item>
@@ -94,7 +94,7 @@
                 </validation>
                 <dataType>text</dataType>
                 <label translate="true">Tag Name</label>
-                <dataScope>name</dataScope>
+                <dataScope>tag_name</dataScope>
             </settings>
         </field>
         <field name="description" formElement="textarea">

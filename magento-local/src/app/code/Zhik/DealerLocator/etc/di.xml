@@ -30,7 +30,7 @@
     </type>
     
     <!-- Virtual types for grid collections -->
-    <virtualType name="Zhik\DealerLocator\Model\ResourceModel\Location\Grid\Collection" type="Magento\Framework\View\Element\UiComponent\DataProvider\SearchResult">
+    <virtualType name="Zhik\DealerLocator\Model\ResourceModel\Location\Grid\Collection" type="Zhik\DealerLocator\Ui\DataProvider\Location\Listing\Collection">
         <arguments>
             <argument name="mainTable" xsi:type="string">zhik_dealer_locations</argument>
             <argument name="resourceModel" xsi:type="string">Zhik\DealerLocator\Model\ResourceModel\Location</argument>

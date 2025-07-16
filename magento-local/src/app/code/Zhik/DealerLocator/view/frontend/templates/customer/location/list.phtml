@@ -23,7 +23,7 @@ $locationsByStatus = $block->getLocationsByStatus();
             <span><?= $escaper->escapeHtml(__('You have not added any dealer locations yet.')) ?></span>
         </div>
     <?php else: ?>
-        <div class="dealer-locations-tabs" data-mage-init='{"tabs":{"openedState":"active"}}'>
+        <div class="dealer-locations-tabs" id="dealer-locations-tabs" data-mage-init='{"tabs":{}}'>
             <ul class="tabs-nav" role="tablist">
                 <li class="tab-nav-item" role="tab" aria-selected="true">
                     <a href="#tab-all" class="tab-nav-link">
@@ -106,7 +106,7 @@ $locationsByStatus = $block->getLocationsByStatus();
                                                         <a href="#" 
                                                            class="action delete"
                                                            data-confirm="<?= $escaper->escapeHtmlAttr(__('Are you sure you want to delete this location?')) ?>"
-                                                           data-post='<?= /* @noEscape */ $block->getDeletePostJson($location->getLocationId()) ?>'>
+                                                           data-post="<?= $escaper->escapeHtmlAttr($block->getDeletePostJson($location->getLocationId())) ?>">
                                                             <span><?= $escaper->escapeHtml(__('Delete')) ?></span>
                                                         </a>
                                                     <?php endif; ?>
@@ -123,6 +123,68 @@ $locationsByStatus = $block->getLocationsByStatus();
         </div>
     <?php endif; ?>
 </div>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "dealerLocationsTabs": {
+                    "component": "jquery",
+                    "config": {}
+                }
+            }
+        }
+    }
+}
+</script>
+
+<script>
+require(['jquery', 'jquery-ui-modules/widget', 'jquery-ui-modules/tabs', 'mage/cookies'], function($) {
+    'use strict';
+    
+    $(document).ready(function() {
+        // Initialize tabs
+        $('#dealer-locations-tabs').tabs({
+            active: 0,
+            collapsible: false
+        });
+        
+        // Handle delete action
+        $(document).on('click', '.action.delete', function(e) {
+            e.preventDefault();
+            
+            var deleteData = $(this).data('post');
+            var confirmMessage = $(this).data('confirm');
+            
+            if (confirm(confirmMessage)) {
+                var form = $('<form>', {
+                    'action': deleteData.action,
+                    'method': 'post'
+                });
+                
+                // Add form key
+                form.append($('<input>', {
+                    'name': 'form_key',
+                    'value': $.mage.cookies.get('form_key'),
+                    'type': 'hidden'
+                }));
+                
+                // Add any additional data
+                $.each(deleteData.data || {}, function(key, value) {
+                    form.append($('<input>', {
+                        'name': key,
+                        'value': value,
+                        'type': 'hidden'
+                    }));
+                });
+                
+                form.appendTo('body').submit();
+            }
+        });
+    });
+});
+</script>
 
 <style>
 .dealer-locations-container {

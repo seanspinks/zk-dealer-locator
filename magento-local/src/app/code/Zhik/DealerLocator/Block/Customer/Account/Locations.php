@@ -158,7 +158,8 @@ class Locations extends Template
      */
     public function canDelete($location)
     {
-        return $location->getStatus() !== 'approved';
+        // Allow customers to delete their own locations regardless of status
+        return true;
     }
 
     /**

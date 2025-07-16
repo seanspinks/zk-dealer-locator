@@ -45,10 +45,13 @@ class GenericButton
      */
     public function getTagId()
     {
+        $tagId = $this->context->getRequest()->getParam('tag_id');
+        if (!$tagId) {
+            return null;
+        }
+        
         try {
-            return $this->tagRepository->getById(
-                $this->context->getRequest()->getParam('tag_id')
-            )->getTagId();
+            return $this->tagRepository->getById((int)$tagId)->getTagId();
         } catch (NoSuchEntityException $e) {
         }
         return null;

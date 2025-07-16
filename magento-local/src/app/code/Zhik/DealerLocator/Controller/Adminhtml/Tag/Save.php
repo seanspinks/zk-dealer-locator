@@ -77,7 +77,17 @@ class Save extends Action implements HttpPostActionInterface
             }
 
             // Set tag data
-            $tag->setName($data['name']);
+            $tagName = $data['tag_name'] ?? $data['name'] ?? '';
+            $tag->setTagName($tagName);
+            
+            // Generate slug from tag name if not provided
+            if (empty($data['tag_slug']) && $tagName) {
+                $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $tagName), '-'));
+                $tag->setTagSlug($slug);
+            } elseif (!empty($data['tag_slug'])) {
+                $tag->setTagSlug($data['tag_slug']);
+            }
+            
             $tag->setDescription($data['description'] ?? '');
             $tag->setIsActive(isset($data['is_active']) ? (int)$data['is_active'] : 1);
             

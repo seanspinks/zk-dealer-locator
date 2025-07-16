@@ -121,7 +121,7 @@
                 <sorting>asc</sorting>
             </settings>
         </column>
-        <column name="name">
+        <column name="tag_name">
             <settings>
                 <filter>text</filter>
                 <editor>

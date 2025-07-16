@@ -83,7 +83,7 @@ class MassApprove extends Action
 
         foreach ($collection as $location) {
             try {
-                $this->locationRepository->approve($location->getLocationId(), $adminUserId);
+                $this->locationRepository->approve((int)$location->getLocationId(), $adminUserId);
                 $approved++;
             } catch (LocalizedException $e) {
                 $this->messageManager->addErrorMessage($e->getMessage());

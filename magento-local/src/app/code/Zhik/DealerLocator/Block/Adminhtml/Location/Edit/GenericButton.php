@@ -9,6 +9,7 @@ namespace Zhik\DealerLocator\Block\Adminhtml\Location\Edit;
 
 use Magento\Backend\Block\Widget\Context;
 use Magento\Framework\Exception\NoSuchEntityException;
+use Psr\Log\LoggerInterface;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 
 /**
@@ -27,15 +28,23 @@ class GenericButton
     protected $locationRepository;
 
     /**
+     * @var LoggerInterface
+     */
+    protected $logger;
+
+    /**
      * @param Context $context
      * @param LocationRepositoryInterface $locationRepository
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
-        LocationRepositoryInterface $locationRepository
+        LocationRepositoryInterface $locationRepository,
+        LoggerInterface $logger
     ) {
         $this->context = $context;
         $this->locationRepository = $locationRepository;
+        $this->logger = $logger;
     }
 
     /**
@@ -45,13 +54,26 @@ class GenericButton
      */
     public function getLocationId()
     {
+        $locationId = $this->context->getRequest()->getParam('location_id');
+        if (!$locationId) {
+            return null;
+        }
+        
         try {
             return $this->locationRepository->getById(
-                $this->context->getRequest()->getParam('location_id')
+                (int)$locationId
             )->getLocationId();
         } catch (NoSuchEntityException $e) {
+            $this->logger->debug(
+                'Location not found in GenericButton',
+                [
+                    'location_id' => $locationId,
+                    'exception' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]
+            );
+            return null;
         }
-        return null;
     }
 
     /**

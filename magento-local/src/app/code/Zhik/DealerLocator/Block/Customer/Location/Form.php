@@ -10,8 +10,10 @@ namespace Zhik\DealerLocator\Block\Customer\Location;
 use Magento\Customer\Model\Session;
 use Magento\Directory\Model\ResourceModel\Country\CollectionFactory as CountryCollectionFactory;
 use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\Encryption\EncryptorInterface;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Psr\Log\LoggerInterface;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 use Zhik\DealerLocator\Api\TagRepositoryInterface;
 use Zhik\DealerLocator\Api\Data\LocationInterfaceFactory;
@@ -52,9 +54,19 @@ class Form extends Template
     protected $scopeConfig;
 
     /**
+     * @var EncryptorInterface
+     */
+    protected $encryptor;
+
+    /**
      * @var \Zhik\DealerLocator\Api\Data\LocationInterface|null
      */
     protected $location = null;
+
+    /**
+     * @var LoggerInterface
+     */
+    protected $logger;
 
     /**
      * @param Context $context
@@ -64,6 +76,8 @@ class Form extends Template
      * @param Session $customerSession
      * @param CountryCollectionFactory $countryCollectionFactory
      * @param ScopeConfigInterface $scopeConfig
+     * @param EncryptorInterface $encryptor
+     * @param LoggerInterface $logger
      * @param array $data
      */
     public function __construct(
@@ -74,6 +88,8 @@ class Form extends Template
         Session $customerSession,
         CountryCollectionFactory $countryCollectionFactory,
         ScopeConfigInterface $scopeConfig,
+        EncryptorInterface $encryptor,
+        LoggerInterface $logger,
         array $data = []
     ) {
         parent::__construct($context, $data);
@@ -83,6 +99,8 @@ class Form extends Template
         $this->customerSession = $customerSession;
         $this->countryCollectionFactory = $countryCollectionFactory;
         $this->scopeConfig = $scopeConfig;
+        $this->encryptor = $encryptor;
+        $this->logger = $logger;
     }
 
     /**
@@ -102,7 +120,16 @@ class Form extends Template
                         $this->location = $location;
                     }
                 } catch (\Exception $e) {
-                    // Location not found or error
+                    $this->logger->debug(
+                        'Failed to load location in customer form',
+                        [
+                            'location_id' => $locationId,
+                            'customer_id' => $this->customerSession->getCustomerId(),
+                            'exception' => $e->getMessage(),
+                            'trace' => $e->getTraceAsString()
+                        ]
+                    );
+                    // Location not found or access denied - will create empty location below
                 }
             }
             
@@ -170,7 +197,15 @@ class Form extends Template
      */
     public function getGoogleMapsApiKey()
     {
-        return $this->scopeConfig->getValue('dealerlocator/google_maps/api_key') ?: '';
+        $encryptedKey = $this->scopeConfig->getValue('dealerlocator/google_maps/api_key');
+        if ($encryptedKey) {
+            try {
+                return $this->encryptor->decrypt($encryptedKey);
+            } catch (\Exception $e) {
+                // Return empty string if decryption fails
+            }
+        }
+        return '';
     }
 
     /**

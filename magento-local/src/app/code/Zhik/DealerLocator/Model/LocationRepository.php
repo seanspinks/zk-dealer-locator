@@ -97,33 +97,50 @@ class LocationRepository implements LocationRepositoryInterface
     {
         try {
             // Handle versioning for approved locations
+            // Only create new version if it's an existing approved location being edited
+            // Don't create new version during the approval process itself
             if ($location->getLocationId() && 
                 $location->getStatus() === LocationInterface::STATUS_APPROVED &&
+                $location->getOrigData('status') === LocationInterface::STATUS_APPROVED &&
                 $location->hasDataChanges()) {
                 
-                // Create new version
-                $newLocation = $this->locationFactory->create();
-                $newLocation->setData($location->getData());
-                $newLocation->setLocationId(null);
-                $newLocation->setParentId($location->getLocationId());
-                $newLocation->setStatus(LocationInterface::STATUS_PENDING);
-                $newLocation->setIsLatest(true);
-                $newLocation->setApprovedAt(null);
-                $newLocation->setApprovedBy(null);
+                // Check if this is actually a content change, not just approval
+                $ignoredFields = ['status', 'approved_at', 'approved_by', 'rejection_reason', 'updated_at'];
+                $hasContentChanges = false;
                 
-                // Mark old version as not latest
-                $location->setIsLatest(false);
-                $this->resource->save($location);
-                
-                // Save new version
-                $this->resource->save($newLocation);
-                
-                // Save tags if any
-                if ($tagIds = $location->getData('tag_ids')) {
-                    $this->resource->saveLocationTags($newLocation->getLocationId(), $tagIds);
+                foreach ($location->getData() as $key => $value) {
+                    if (!in_array($key, $ignoredFields) && 
+                        $location->getOrigData($key) !== $value) {
+                        $hasContentChanges = true;
+                        break;
+                    }
                 }
                 
-                return $newLocation;
+                if ($hasContentChanges) {
+                    // Create new version
+                    $newLocation = $this->locationFactory->create();
+                    $newLocation->setData($location->getData());
+                    $newLocation->setLocationId(null);
+                    $newLocation->setParentId($location->getLocationId());
+                    $newLocation->setStatus(LocationInterface::STATUS_PENDING);
+                    $newLocation->setIsLatest(true);
+                    $newLocation->setApprovedAt(null);
+                    $newLocation->setApprovedBy(null);
+                    
+                    // Mark old version as not latest
+                    $location->setIsLatest(false);
+                    $this->resource->save($location);
+                    
+                    // Save new version
+                    $this->resource->save($newLocation);
+                    
+                    // Save tags if any
+                    if ($tagIds = $location->getData('tag_ids')) {
+                        $this->resource->saveLocationTags($newLocation->getLocationId(), $tagIds);
+                    }
+                    
+                    return $newLocation;
+                }
             }
             
             // Normal save
@@ -171,11 +188,11 @@ class LocationRepository implements LocationRepositoryInterface
         
         $items = [];
         foreach ($collection->getItems() as $model) {
-            // Load tags for each location
-            $tagIds = $this->resource->getLocationTags($model->getLocationId());
-            $model->setData('tag_ids', $tagIds);
             $items[] = $model;
         }
+        
+        // Load tags for all locations in a single query
+        $this->loadTagsForLocations($items);
         
         $searchResults->setItems($items);
         $searchResults->setTotalCount($collection->getSize());
@@ -214,11 +231,11 @@ class LocationRepository implements LocationRepositoryInterface
         
         $items = [];
         foreach ($collection->getItems() as $location) {
-            // Load tags
-            $tagIds = $this->resource->getLocationTags($location->getLocationId());
-            $location->setData('tag_ids', $tagIds);
             $items[] = $location;
         }
+        
+        // Load tags for all locations in a single query
+        $this->loadTagsForLocations($items);
         
         return $items;
     }
@@ -238,6 +255,15 @@ class LocationRepository implements LocationRepositoryInterface
         $location->setApprovedAt($this->dateTime->gmtDate());
         $location->setApprovedBy($adminUserId);
         $location->setRejectionReason(null);
+        $location->setIsLatest(true);
+        
+        // Mark any other versions as not latest
+        if ($location->getParentId()) {
+            $this->markOtherVersionsAsNotLatest((int)$location->getParentId(), (int)$location->getLocationId());
+        } else {
+            // This is approving the original location, mark any child versions as not latest
+            $this->markChildVersionsAsNotLatest((int)$location->getLocationId());
+        }
         
         $savedLocation = $this->save($location);
         
@@ -269,5 +295,97 @@ class LocationRepository implements LocationRepositoryInterface
         $this->emailHelper->sendLocationRejected($savedLocation);
         
         return $savedLocation;
+    }
+
+    /**
+     * Mark other versions of a location as not latest
+     *
+     * @param int $parentId
+     * @param int $currentLocationId
+     * @return void
+     */
+    private function markOtherVersionsAsNotLatest(int $parentId, int $currentLocationId): void
+    {
+        $connection = $this->resource->getConnection();
+        $table = $this->resource->getMainTable();
+        
+        $connection->update(
+            $table,
+            ['is_latest' => 0],
+            [
+                'parent_id = ?' => $parentId,
+                'location_id != ?' => $currentLocationId
+            ]
+        );
+        
+        // Also update the parent location
+        $connection->update(
+            $table,
+            ['is_latest' => 0],
+            ['location_id = ?' => $parentId]
+        );
+    }
+
+    /**
+     * Mark child versions of a location as not latest
+     *
+     * @param int $parentId
+     * @return void
+     */
+    private function markChildVersionsAsNotLatest(int $parentId): void
+    {
+        $connection = $this->resource->getConnection();
+        $table = $this->resource->getMainTable();
+        
+        $connection->update(
+            $table,
+            ['is_latest' => 0],
+            ['parent_id = ?' => $parentId]
+        );
+    }
+
+    /**
+     * Load tags for multiple locations in a single query
+     *
+     * @param LocationInterface[] $locations
+     * @return void
+     */
+    private function loadTagsForLocations(array $locations): void
+    {
+        if (empty($locations)) {
+            return;
+        }
+
+        // Extract location IDs
+        $locationIds = [];
+        $locationMap = [];
+        foreach ($locations as $location) {
+            $locationId = $location->getLocationId();
+            $locationIds[] = $locationId;
+            $locationMap[$locationId] = $location;
+            // Initialize empty tag array
+            $location->setData('tag_ids', []);
+        }
+
+        // Load all tags for these locations in a single query
+        $connection = $this->resource->getConnection();
+        $select = $connection->select()
+            ->from($this->resource->getTable('zhik_dealer_location_tags'), ['location_id', 'tag_id'])
+            ->where('location_id IN (?)', $locationIds);
+
+        $tagData = $connection->fetchAll($select);
+
+        // Map tags to their respective locations
+        foreach ($tagData as $row) {
+            $locationId = (int)$row['location_id'];
+            $tagId = (int)$row['tag_id'];
+            
+            if (isset($locationMap[$locationId])) {
+                $location = $locationMap[$locationId];
+                $tagIds = $location->getData('tag_ids') ?: [];
+                $tagIds[] = $tagId;
+                $location->setData('tag_ids', $tagIds);
+            }
+        }
     }
 }
