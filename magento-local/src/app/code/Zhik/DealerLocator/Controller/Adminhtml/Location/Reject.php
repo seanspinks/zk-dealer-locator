@@ -25,7 +25,7 @@ class Reject extends Action
      *
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Zhik_DealerLocator::manage';
+    const ADMIN_RESOURCE = 'Zhik_DealerLocator::locations_approve';
 
     /**
      * @var LocationRepositoryInterface

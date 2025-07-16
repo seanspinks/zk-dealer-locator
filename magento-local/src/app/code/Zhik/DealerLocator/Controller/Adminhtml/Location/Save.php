@@ -110,9 +110,27 @@ class Save extends Action implements HttpPostActionInterface
                 $location->setCustomerId((int)$data['customer_id']);
             }
             
-            // Handle status changes
-            if (isset($data['status'])) {
-                $currentStatus = $location->getStatus();
+            // For new locations, save first to get ID
+            if (!$locationId) {
+                // Save tags if provided
+                if (isset($data['tag_ids'])) {
+                    $location->setData('tag_ids', $data['tag_ids']);
+                }
+                
+                // Set initial status for new locations
+                if (isset($data['status'])) {
+                    $location->setStatus($data['status']);
+                } else {
+                    $location->setStatus(LocationInterface::STATUS_PENDING);
+                }
+                
+                $this->locationRepository->save($location);
+                $locationId = (int)$location->getLocationId();
+            }
+            
+            // Handle status changes for existing locations
+            if (isset($data['status']) && $location->getOrigData('location_id')) {
+                $currentStatus = $location->getOrigData('status') ?: $location->getStatus();
                 $newStatus = $data['status'];
                 $adminUserId = (int)$this->authSession->getUser()->getId();
                 
@@ -135,7 +153,8 @@ class Save extends Action implements HttpPostActionInterface
                     
                     $this->locationRepository->save($location);
                 }
-            } else {
+            } else if ($location->getOrigData('location_id')) {
+                // For existing locations without status change
                 // Save tags if provided
                 if (isset($data['tag_ids'])) {
                     $location->setData('tag_ids', $data['tag_ids']);
