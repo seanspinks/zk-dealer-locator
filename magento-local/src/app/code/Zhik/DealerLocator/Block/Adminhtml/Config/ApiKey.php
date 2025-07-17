@@ -56,10 +56,6 @@ class ApiKey extends Template
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE
         );
         
-        if ($apiKey) {
-            $apiKey = $this->encryptor->decrypt($apiKey);
-        }
-        
         return $apiKey;
     }
 }

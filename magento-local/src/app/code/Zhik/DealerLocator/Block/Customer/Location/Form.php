@@ -197,15 +197,8 @@ class Form extends Template
      */
     public function getGoogleMapsApiKey()
     {
-        $encryptedKey = $this->scopeConfig->getValue('dealerlocator/google_maps/api_key');
-        if ($encryptedKey) {
-            try {
-                return $this->encryptor->decrypt($encryptedKey);
-            } catch (\Exception $e) {
-                // Return empty string if decryption fails
-            }
-        }
-        return '';
+        $apiKey = $this->scopeConfig->getValue('dealerlocator/google_maps/api_key');
+        return $apiKey ?: '';
     }
 
     /**

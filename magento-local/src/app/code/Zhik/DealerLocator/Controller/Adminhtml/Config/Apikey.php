@@ -71,10 +71,6 @@ class Apikey extends Action
                 \Magento\Store\Model\ScopeInterface::SCOPE_STORE
             );
             
-            if ($apiKey) {
-                $apiKey = $this->encryptor->decrypt($apiKey);
-            }
-            
             return $resultJson->setData([
                 'api_key' => $apiKey ?: ''
             ]);

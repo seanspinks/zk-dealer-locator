@@ -36,11 +36,10 @@
             </group>
             <group id="google_maps" translate="label" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Google Maps Configuration</label>
-                <field id="api_key" translate="label comment" type="obscure" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                <field id="api_key" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Google Maps API Key</label>
-                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
                     <frontend_model>Zhik\DealerLocator\Block\Adminhtml\System\Config\Field\ApiKey</frontend_model>
-                    <comment><![CDATA[Get your API key from <a href="https://console.cloud.google.com/google/maps-apis" target="_blank">Google Cloud Console</a>]]></comment>
+                    <comment><![CDATA[Get your API key from <a href="https://console.cloud.google.com/google/maps-apis" target="_blank">Google Cloud Console</a>. Required APIs: Maps JavaScript API, Places API, Geocoding API]]></comment>
                 </field>
             </group>
             <group id="map" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
