@@ -24,8 +24,21 @@ class SaveAndContinueButton extends GenericButton implements ButtonProviderInter
             'class' => 'save',
             'data_attribute' => [
                 'mage-init' => [
-                    'button' => ['event' => 'saveAndContinueEdit'],
-                ],
+                    'buttonAdapter' => [
+                        'actions' => [
+                            [
+                                'targetName' => 'dealerlocator_location_form.dealerlocator_location_form',
+                                'actionName' => 'save',
+                                'params' => [
+                                    true,
+                                    [
+                                        'back' => 'edit'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
             ],
             'sort_order' => 80,
         ];

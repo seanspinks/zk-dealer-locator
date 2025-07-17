@@ -27,7 +27,7 @@ class RejectButton extends GenericButton implements ButtonProviderInterface
         }
         
         try {
-            $location = $this->locationRepository->getById($locationId);
+            $location = $this->locationRepository->getById((int)$locationId);
             
             // Only show reject button if location is pending
             if ($location->getStatus() !== LocationInterface::STATUS_PENDING) {
@@ -39,18 +39,11 @@ class RejectButton extends GenericButton implements ButtonProviderInterface
         
         return [
             'label' => __('Reject'),
-            'class' => 'reject',
-            'on_click' => '',
+            'class' => 'reject action-secondary',
+            'id' => 'reject-location-button',
             'data_attribute' => [
                 'mage-init' => [
-                    'Magento_Ui/js/form/button-adapter' => [
-                        'actions' => [
-                            [
-                                'targetName' => 'dealerlocator_location_form.dealerlocator_location_form.modal_reject',
-                                'actionName' => 'openModal'
-                            ]
-                        ]
-                    ]
+                    'Zhik_DealerLocator/js/location-reject-handler' => []
                 ]
             ],
             'sort_order' => 20

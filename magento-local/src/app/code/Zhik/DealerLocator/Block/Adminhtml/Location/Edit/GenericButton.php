@@ -55,25 +55,7 @@ class GenericButton
     public function getLocationId()
     {
         $locationId = $this->context->getRequest()->getParam('location_id');
-        if (!$locationId) {
-            return null;
-        }
-        
-        try {
-            return $this->locationRepository->getById(
-                (int)$locationId
-            )->getLocationId();
-        } catch (NoSuchEntityException $e) {
-            $this->logger->debug(
-                'Location not found in GenericButton',
-                [
-                    'location_id' => $locationId,
-                    'exception' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]
-            );
-            return null;
-        }
+        return $locationId ? (int)$locationId : null;
     }
 
     /**

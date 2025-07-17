@@ -75,11 +75,20 @@ class Save extends Action implements HttpPostActionInterface
         $data = $this->getRequest()->getPostValue();
         
         // Debug logging
-        $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Request method: ' . $this->getRequest()->getMethod());
-        $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Post data: ' . json_encode($data));
+        $logger = $this->_objectManager->get(\Psr\Log\LoggerInterface::class);
+        $logger->info('DealerLocator Save: Request method: ' . $this->getRequest()->getMethod());
+        $logger->info('DealerLocator Save: Post data: ' . json_encode($data));
+        $logger->info('DealerLocator Save: Form key valid: ' . ($this->_formKeyValidator->validate($this->getRequest()) ? 'YES' : 'NO'));
         
         if (!$data) {
-            $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: No data received, redirecting to index');
+            $logger->info('DealerLocator Save: No data received, redirecting to index');
+            return $resultRedirect->setPath('*/*/');
+        }
+        
+        // Validate form key
+        if (!$this->_formKeyValidator->validate($this->getRequest())) {
+            $logger->error('DealerLocator Save: Invalid form key!');
+            $this->messageManager->addErrorMessage(__('Invalid form key. Please refresh the page.'));
             return $resultRedirect->setPath('*/*/');
         }
 

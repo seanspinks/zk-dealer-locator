@@ -23,8 +23,19 @@ class SaveButton extends GenericButton implements ButtonProviderInterface
             'label' => __('Save Location'),
             'class' => 'save primary',
             'data_attribute' => [
-                'mage-init' => ['button' => ['event' => 'save']],
-                'form-role' => 'save',
+                'mage-init' => [
+                    'buttonAdapter' => [
+                        'actions' => [
+                            [
+                                'targetName' => 'dealerlocator_location_form.dealerlocator_location_form',
+                                'actionName' => 'save',
+                                'params' => [
+                                    false
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
             ],
             'sort_order' => 90,
         ];
