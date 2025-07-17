@@ -139,7 +139,6 @@
                 </item>
             </argument>
             <settings>
-                <filter>text</filter>
                 <dataType>text</dataType>
                 <label translate="true">Customer</label>
                 <dataScope>customer_id</dataScope>

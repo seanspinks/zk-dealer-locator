@@ -27,7 +27,7 @@ class Save extends Action implements HttpPostActionInterface
      *
      * @see _isAllowed()
      */
-    const ADMIN_RESOURCE = 'Zhik_DealerLocator::manage';
+    const ADMIN_RESOURCE = 'Zhik_DealerLocator::locations_save';
 
     /**
      * @var LocationRepositoryInterface
@@ -110,30 +110,45 @@ class Save extends Action implements HttpPostActionInterface
                 $location->setCustomerId((int)$data['customer_id']);
             }
             
+            // For new locations, we need to save first before changing status
+            $isNew = !$locationId;
+            
             // Handle status changes
             if (isset($data['status'])) {
                 $currentStatus = $location->getStatus();
                 $newStatus = $data['status'];
                 $adminUserId = (int)$this->authSession->getUser()->getId();
                 
-                // Use repository methods for status changes to trigger emails
-                if ($currentStatus !== $newStatus) {
-                    if ($newStatus === LocationInterface::STATUS_APPROVED) {
-                        $this->locationRepository->approve($locationId, $adminUserId);
-                    } elseif ($newStatus === LocationInterface::STATUS_REJECTED) {
-                        $reason = $data['rejection_reason'] ?? __('Rejected by admin');
-                        $this->locationRepository->reject($locationId, (string)$reason, $adminUserId);
-                    } else {
-                        $location->setStatus($newStatus);
-                        $this->locationRepository->save($location);
-                    }
-                } else {
+                // For new locations or when status isn't changing to approved/rejected
+                if ($isNew || ($currentStatus === $newStatus) || 
+                    ($newStatus !== LocationInterface::STATUS_APPROVED && $newStatus !== LocationInterface::STATUS_REJECTED)) {
+                    
+                    // Set status and save normally
+                    $location->setStatus($newStatus);
+                    
                     // Save tags if provided
                     if (isset($data['tag_ids'])) {
                         $location->setData('tag_ids', $data['tag_ids']);
                     }
                     
-                    $this->locationRepository->save($location);
+                    $savedLocation = $this->locationRepository->save($location);
+                    $locationId = (int)$savedLocation->getLocationId();
+                    
+                    // If it's a new location being approved/rejected, handle it after save
+                    if ($isNew && $newStatus === LocationInterface::STATUS_APPROVED) {
+                        $this->locationRepository->approve((int)$locationId, $adminUserId);
+                    } elseif ($isNew && $newStatus === LocationInterface::STATUS_REJECTED) {
+                        $reason = $data['rejection_reason'] ?? __('Rejected by admin');
+                        $this->locationRepository->reject((int)$locationId, (string)$reason, $adminUserId);
+                    }
+                } else {
+                    // For existing locations changing to approved/rejected
+                    if ($newStatus === LocationInterface::STATUS_APPROVED) {
+                        $this->locationRepository->approve((int)$locationId, $adminUserId);
+                    } elseif ($newStatus === LocationInterface::STATUS_REJECTED) {
+                        $reason = $data['rejection_reason'] ?? __('Rejected by admin');
+                        $this->locationRepository->reject((int)$locationId, (string)$reason, $adminUserId);
+                    }
                 }
             } else {
                 // Save tags if provided
@@ -141,7 +156,8 @@ class Save extends Action implements HttpPostActionInterface
                     $location->setData('tag_ids', $data['tag_ids']);
                 }
                 
-                $this->locationRepository->save($location);
+                $savedLocation = $this->locationRepository->save($location);
+                $locationId = (int)$savedLocation->getLocationId();
             }
 
             $this->messageManager->addSuccessMessage(__('You saved the location.'));
@@ -159,6 +175,11 @@ class Save extends Action implements HttpPostActionInterface
         }
 
         $this->_objectManager->get(\Magento\Backend\Model\Session::class)->setFormData($data);
-        return $resultRedirect->setPath('*/*/edit', ['location_id' => $locationId]);
+        
+        if ($locationId) {
+            return $resultRedirect->setPath('*/*/edit', ['location_id' => $locationId]);
+        }
+        
+        return $resultRedirect->setPath('*/*/new');
     }
 }
