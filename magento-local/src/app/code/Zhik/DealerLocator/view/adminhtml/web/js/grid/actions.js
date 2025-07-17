@@ -50,6 +50,15 @@ define([
          * @param {String} url
          */
         rejectLocation: function (url) {
+            // Extract location_id from URL
+            var matches = url.match(/location_id\/(\d+)/);
+            var locationId = matches ? matches[1] : null;
+            
+            if (!locationId) {
+                alert($t('Invalid location ID.'));
+                return;
+            }
+            
             prompt({
                 title: $t('Reject Location'),
                 content: $t('Please provide a reason for rejection:'),
@@ -65,6 +74,7 @@ define([
                             showLoader: true,
                             data: {
                                 form_key: window.FORM_KEY,
+                                location_id: locationId,
                                 reason: reason
                             },
                             success: function (response) {
