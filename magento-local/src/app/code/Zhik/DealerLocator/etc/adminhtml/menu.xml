@@ -29,22 +29,6 @@
              action="dealerlocator/tag/index" 
              resource="Zhik_DealerLocator::tags_view"/>
         
-        <add id="Zhik_DealerLocator::import" 
-             title="Import Locations" 
-             module="Zhik_DealerLocator" 
-             sortOrder="30" 
-             parent="Zhik_DealerLocator::dealer_locator" 
-             action="admin/import/index" 
-             resource="Magento_ImportExport::import"/>
-        
-        <add id="Zhik_DealerLocator::export" 
-             title="Export Locations" 
-             module="Zhik_DealerLocator" 
-             sortOrder="40" 
-             parent="Zhik_DealerLocator::dealer_locator" 
-             action="admin/export/index" 
-             resource="Magento_ImportExport::export"/>
-        
         <add id="Zhik_DealerLocator::configuration" 
              title="Configuration" 
              module="Zhik_DealerLocator" 

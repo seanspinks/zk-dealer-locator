@@ -15,8 +15,6 @@
                         <resource id="Zhik_DealerLocator::locations_save" title="Save Locations" sortOrder="20"/>
                         <resource id="Zhik_DealerLocator::locations_delete" title="Delete Locations" sortOrder="30"/>
                         <resource id="Zhik_DealerLocator::locations_approve" title="Approve/Reject Locations" sortOrder="40"/>
-                        <resource id="Zhik_DealerLocator::locations_import" title="Import Locations" sortOrder="50"/>
-                        <resource id="Zhik_DealerLocator::locations_export" title="Export Locations" sortOrder="60"/>
                     </resource>
                     <resource id="Zhik_DealerLocator::tags" title="Manage Tags" sortOrder="20">
                         <resource id="Zhik_DealerLocator::tags_view" title="View Tags" sortOrder="10"/>

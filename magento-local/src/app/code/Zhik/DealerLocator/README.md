@@ -17,7 +17,6 @@ The Zhik Dealer Locator module provides a comprehensive dealer/location manageme
 - Full CRUD operations on locations
 - Tag management system
 - Email notifications for submissions and status changes
-- Import/Export functionality
 - Comprehensive admin grids with filtering
 
 ### Technical Features
@@ -103,12 +102,6 @@ bin/magento cache:clean
    - Service Center
    - Premium Partner
 3. Assign tags to locations during edit
-
-#### Import/Export
-
-1. **Export**: Dealer Locator > Export Locations
-2. **Import**: Dealer Locator > Import Locations
-3. See Import/Export Guide for detailed instructions
 
 ### Customer Usage
 
@@ -219,12 +212,7 @@ The module dispatches these events:
    - Verify cron is running
    - Check email logs
 
-3. **Import failing**
-   - Validate CSV format
-   - Check customer emails exist
-   - Verify tag names match
-
-4. **API errors**
+3. **API errors**
    - Check authentication token
    - Verify permissions/ACL
    - Check request format
@@ -251,7 +239,6 @@ Proprietary - See COPYING.txt for details
 ## Version History
 
 ### 1.2.0
-- Added import/export functionality
 - REST API implementation
 - Email notifications
 
