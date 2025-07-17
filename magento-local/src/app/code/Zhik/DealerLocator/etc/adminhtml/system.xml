@@ -42,6 +42,9 @@
                     <frontend_model>Zhik\DealerLocator\Block\Adminhtml\System\Config\Field\ApiKey</frontend_model>
                     <comment><![CDATA[Get your API key from <a href="https://console.cloud.google.com/google/maps-apis" target="_blank">Google Cloud Console</a>]]></comment>
                 </field>
+            </group>
+            <group id="map" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Map Display Settings</label>
                 <field id="default_latitude" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Map Latitude</label>
                     <comment>Default center latitude for map display</comment>
@@ -56,6 +59,32 @@
                     <label>Default Map Zoom</label>
                     <comment>Default zoom level (1-20)</comment>
                     <validate>validate-digits validate-digits-range digits-range-1-20</validate>
+                </field>
+                <field id="map_style" translate="label comment" type="textarea" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Google Maps Style JSON</label>
+                    <comment><![CDATA[Custom map styling in JSON format. Generate styles at <a href="https://mapstyle.withgoogle.com/" target="_blank">Google Map Styling Wizard</a>. Leave empty for default style.]]></comment>
+                    <frontend_model>Zhik\DealerLocator\Block\Adminhtml\System\Config\Field\MapStyle</frontend_model>
+                </field>
+                <field id="cluster_enabled" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable Marker Clustering</label>
+                    <comment>Group nearby markers into clusters for better performance</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="cluster_grid_size" translate="label comment" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Cluster Grid Size</label>
+                    <comment>The grid size of a cluster in pixels (default: 60)</comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="cluster_enabled">1</field>
+                    </depends>
+                </field>
+                <field id="cluster_min_size" translate="label comment" type="text" sortOrder="80" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Minimum Cluster Size</label>
+                    <comment>Minimum number of markers to form a cluster (default: 3)</comment>
+                    <validate>validate-digits validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="cluster_enabled">1</field>
+                    </depends>
                 </field>
             </group>
             <group id="email" translate="label" type="text" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -108,6 +137,39 @@
                 <field id="image_enabled" translate="label" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Enable Image Upload</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="geolocation" translate="label" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>IP Geolocation</label>
+                <field id="enabled" translate="label comment" type="select" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enable IP Geolocation</label>
+                    <comment>Automatically detect user location based on IP address</comment>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+                <field id="service" translate="label comment" type="select" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Geolocation Service</label>
+                    <comment>Choose which IP geolocation service to use</comment>
+                    <source_model>Zhik\DealerLocator\Model\Config\Source\GeolocationService</source_model>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
+                </field>
+                <field id="ipinfo_token" translate="label comment" type="obscure" sortOrder="30" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>IPInfo API Token</label>
+                    <backend_model>Magento\Config\Model\Config\Backend\Encrypted</backend_model>
+                    <comment><![CDATA[Required for IPInfo service. Get your token from <a href="https://ipinfo.io/signup" target="_blank">ipinfo.io</a>]]></comment>
+                    <depends>
+                        <field id="enabled">1</field>
+                        <field id="service">ipinfo</field>
+                    </depends>
+                </field>
+                <field id="default_radius" translate="label comment" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Default Search Radius (km)</label>
+                    <comment>Default radius for location-based searches (e.g., 50)</comment>
+                    <validate>validate-number validate-greater-than-zero</validate>
+                    <depends>
+                        <field id="enabled">1</field>
+                    </depends>
                 </field>
             </group>
         </section>

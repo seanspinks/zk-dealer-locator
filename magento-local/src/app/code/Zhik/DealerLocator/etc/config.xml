@@ -15,10 +15,12 @@
             </general>
             <google_maps>
                 <api_key></api_key>
+            </google_maps>
+            <map>
                 <default_latitude>40.7128</default_latitude>
                 <default_longitude>-74.0060</default_longitude>
                 <default_zoom>10</default_zoom>
-            </google_maps>
+            </map>
             <email>
                 <send_customer_notifications>1</send_customer_notifications>
                 <send_admin_notifications>1</send_admin_notifications>
@@ -31,6 +33,12 @@
                 <description_enabled>1</description_enabled>
                 <image_enabled>1</image_enabled>
             </fields>
+            <geolocation>
+                <enabled>1</enabled>
+                <service>ipapi</service>
+                <ipinfo_token></ipinfo_token>
+                <default_radius>50</default_radius>
+            </geolocation>
         </dealerlocator>
     </default>
 </config>
