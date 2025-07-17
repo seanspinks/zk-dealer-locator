@@ -113,49 +113,53 @@ class Save extends Action implements HttpPostActionInterface
             // For new locations, we need to save first before changing status
             $isNew = !$locationId;
             
+            // Save tags if provided
+            if (isset($data['tag_ids'])) {
+                $location->setData('tag_ids', $data['tag_ids']);
+            }
+            
             // Handle status changes
             if (isset($data['status'])) {
                 $currentStatus = $location->getStatus();
                 $newStatus = $data['status'];
                 $adminUserId = (int)$this->authSession->getUser()->getId();
                 
-                // For new locations or when status isn't changing to approved/rejected
-                if ($isNew || ($currentStatus === $newStatus) || 
-                    ($newStatus !== LocationInterface::STATUS_APPROVED && $newStatus !== LocationInterface::STATUS_REJECTED)) {
-                    
-                    // Set status and save normally
-                    $location->setStatus($newStatus);
-                    
-                    // Save tags if provided
-                    if (isset($data['tag_ids'])) {
-                        $location->setData('tag_ids', $data['tag_ids']);
-                    }
-                    
+                // For new locations being created with approved/rejected status
+                if ($isNew && ($newStatus === LocationInterface::STATUS_APPROVED || $newStatus === LocationInterface::STATUS_REJECTED)) {
+                    // Save the location first with pending status
+                    $location->setStatus(LocationInterface::STATUS_PENDING);
                     $savedLocation = $this->locationRepository->save($location);
                     $locationId = (int)$savedLocation->getLocationId();
                     
-                    // If it's a new location being approved/rejected, handle it after save
-                    if ($isNew && $newStatus === LocationInterface::STATUS_APPROVED) {
-                        $this->locationRepository->approve((int)$locationId, $adminUserId);
-                    } elseif ($isNew && $newStatus === LocationInterface::STATUS_REJECTED) {
-                        $reason = $data['rejection_reason'] ?? __('Rejected by admin');
-                        $this->locationRepository->reject((int)$locationId, (string)$reason, $adminUserId);
-                    }
-                } else {
-                    // For existing locations changing to approved/rejected
+                    // Now approve/reject using the repository methods
                     if ($newStatus === LocationInterface::STATUS_APPROVED) {
-                        $this->locationRepository->approve((int)$locationId, $adminUserId);
+                        $this->locationRepository->approve($locationId, $adminUserId);
                     } elseif ($newStatus === LocationInterface::STATUS_REJECTED) {
                         $reason = $data['rejection_reason'] ?? __('Rejected by admin');
-                        $this->locationRepository->reject((int)$locationId, (string)$reason, $adminUserId);
+                        $this->locationRepository->reject($locationId, (string)$reason, $adminUserId);
                     }
+                } elseif (!$isNew && $currentStatus !== $newStatus && 
+                    ($newStatus === LocationInterface::STATUS_APPROVED || $newStatus === LocationInterface::STATUS_REJECTED)) {
+                    // For existing locations changing to approved/rejected
+                    // Save first to persist any other changes
+                    $savedLocation = $this->locationRepository->save($location);
+                    $locationId = (int)$savedLocation->getLocationId();
+                    
+                    // Then change status
+                    if ($newStatus === LocationInterface::STATUS_APPROVED) {
+                        $this->locationRepository->approve($locationId, $adminUserId);
+                    } elseif ($newStatus === LocationInterface::STATUS_REJECTED) {
+                        $reason = $data['rejection_reason'] ?? __('Rejected by admin');
+                        $this->locationRepository->reject($locationId, (string)$reason, $adminUserId);
+                    }
+                } else {
+                    // For all other cases (new location with pending status or status not changing)
+                    $location->setStatus($newStatus);
+                    $savedLocation = $this->locationRepository->save($location);
+                    $locationId = (int)$savedLocation->getLocationId();
                 }
             } else {
-                // Save tags if provided
-                if (isset($data['tag_ids'])) {
-                    $location->setData('tag_ids', $data['tag_ids']);
-                }
-                
+                // No status change, just save
                 $savedLocation = $this->locationRepository->save($location);
                 $locationId = (int)$savedLocation->getLocationId();
             }
@@ -164,7 +168,7 @@ class Save extends Action implements HttpPostActionInterface
             $this->_objectManager->get(\Magento\Backend\Model\Session::class)->setFormData(false);
             
             if ($this->getRequest()->getParam('back')) {
-                return $resultRedirect->setPath('*/*/edit', ['location_id' => $location->getLocationId()]);
+                return $resultRedirect->setPath('*/*/edit', ['location_id' => $locationId]);
             }
             
             return $resultRedirect->setPath('*/*/');

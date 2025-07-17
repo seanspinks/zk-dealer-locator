@@ -19,6 +19,7 @@
             <button name="delete" class="Zhik\DealerLocator\Block\Adminhtml\Location\Edit\DeleteButton"/>
             <button name="back" class="Zhik\DealerLocator\Block\Adminhtml\Location\Edit\BackButton"/>
             <button name="save_and_continue" class="Zhik\DealerLocator\Block\Adminhtml\Location\Edit\SaveAndContinueButton"/>
+            <button name="reject" class="Zhik\DealerLocator\Block\Adminhtml\Location\Edit\RejectButton"/>
         </buttons>
         <namespace>dealerlocator_location_form</namespace>
         <dataScope>data</dataScope>
@@ -368,4 +369,50 @@
             </formElements>
         </field>
     </fieldset>
+    <modal name="modal_reject">
+        <argument name="data" xsi:type="array">
+            <item name="config" xsi:type="array">
+                <item name="component" xsi:type="string">Zhik_DealerLocator/js/form/location-reject</item>
+            </item>
+        </argument>
+        <settings>
+            <options>
+                <option name="modalClass" xsi:type="string">location-reject-modal</option>
+                <option name="title" xsi:type="string" translate="true">Reject Location</option>
+                <option name="buttons" xsi:type="array">
+                    <item name="0" xsi:type="array">
+                        <item name="text" xsi:type="string" translate="true">Cancel</item>
+                        <item name="class" xsi:type="string">action-secondary</item>
+                        <item name="actions" xsi:type="array">
+                            <item name="0" xsi:type="string">closeModal</item>
+                        </item>
+                    </item>
+                    <item name="1" xsi:type="array">
+                        <item name="text" xsi:type="string" translate="true">Reject</item>
+                        <item name="class" xsi:type="string">action-primary</item>
+                        <item name="actions" xsi:type="array">
+                            <item name="0" xsi:type="array">
+                                <item name="targetName" xsi:type="string">dealerlocator_location_form.dealerlocator_location_form.modal_reject</item>
+                                <item name="actionName" xsi:type="string">reject</item>
+                            </item>
+                        </item>
+                    </item>
+                </option>
+            </options>
+        </settings>
+        <fieldset name="general">
+            <settings>
+                <label/>
+            </settings>
+            <field name="rejection_reason" formElement="textarea">
+                <settings>
+                    <validation>
+                        <rule name="required-entry" xsi:type="boolean">true</rule>
+                    </validation>
+                    <label translate="true">Rejection Reason</label>
+                    <dataScope>rejection_reason</dataScope>
+                </settings>
+            </field>
+        </fieldset>
+    </modal>
 </form>
