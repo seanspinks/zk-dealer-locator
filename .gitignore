@@ -121,5 +121,10 @@ __pycache__/
 .claude/
 CLAUDE.md
 
+# SuperClaude and local documentation
+Super_Claude_Docs.md
+Docs/
+.yoyo/
+
 # PRD and documentation
 prd.md
