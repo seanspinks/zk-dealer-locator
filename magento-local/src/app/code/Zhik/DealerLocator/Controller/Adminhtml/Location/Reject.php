@@ -10,6 +10,7 @@ namespace Zhik\DealerLocator\Controller\Adminhtml\Location;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\Model\Auth\Session;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Exception\LocalizedException;
@@ -18,7 +19,7 @@ use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 /**
  * Reject location controller
  */
-class Reject extends Action
+class Reject extends Action implements HttpPostActionInterface
 {
     /**
      * Authorization level of a basic admin session

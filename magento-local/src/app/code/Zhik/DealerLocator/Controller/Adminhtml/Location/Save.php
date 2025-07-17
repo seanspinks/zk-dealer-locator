@@ -73,17 +73,27 @@ class Save extends Action implements HttpPostActionInterface
         $resultRedirect = $this->resultFactory->create(ResultFactory::TYPE_REDIRECT);
         
         $data = $this->getRequest()->getPostValue();
+        
+        // Debug logging
+        $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Request method: ' . $this->getRequest()->getMethod());
+        $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Post data: ' . json_encode($data));
+        
         if (!$data) {
+            $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: No data received, redirecting to index');
             return $resultRedirect->setPath('*/*/');
         }
 
         try {
             $locationId = !empty($data['location_id']) ? (int)$data['location_id'] : null;
             
+            $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Location ID: ' . var_export($locationId, true));
+            
             if ($locationId) {
                 $location = $this->locationRepository->getById($locationId);
+                $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Loaded existing location');
             } else {
                 $location = $this->locationFactory->create();
+                $this->_objectManager->get(\Psr\Log\LoggerInterface::class)->info('DealerLocator Save: Created new location');
             }
 
             // Set location data
