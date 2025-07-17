@@ -13,6 +13,7 @@ use Magento\Backend\Model\Auth\Session;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Exception\LocalizedException;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 
@@ -64,48 +65,83 @@ class Reject extends Action implements HttpPostActionInterface
     /**
      * Reject location
      *
-     * @return Json
+     * @return Json|Redirect
      */
     public function execute()
     {
-        /** @var Json $resultJson */
-        $resultJson = $this->resultJsonFactory->create();
-        
         $locationId = (int)$this->getRequest()->getParam('location_id');
         $reason = $this->getRequest()->getParam('reason');
         
+        // Check if this is an AJAX request
+        $isAjax = $this->getRequest()->isAjax();
+        
         if (!$locationId) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => __('Invalid location ID.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => __('Invalid location ID.')
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage(__('Invalid location ID.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         }
         
         if (!$reason) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => __('Please provide a reason for rejection.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => __('Please provide a reason for rejection.')
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage(__('Please provide a reason for rejection.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/edit', ['location_id' => $locationId]);
+            }
         }
 
         try {
             $adminUserId = (int)$this->authSession->getUser()->getId();
             $this->locationRepository->reject($locationId, $reason, $adminUserId);
             
-            return $resultJson->setData([
-                'success' => true,
-                'message' => __('Location has been rejected.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'success' => true,
+                    'message' => __('Location has been rejected.')
+                ]);
+            } else {
+                $this->messageManager->addSuccessMessage(__('Location has been rejected.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         } catch (LocalizedException $e) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => $e->getMessage()
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => $e->getMessage()
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage($e->getMessage());
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         } catch (\Exception $e) {
-            return $resultJson->setData([
-                'error' => true,
-                'message' => __('An error occurred while rejecting the location.')
-            ]);
+            if ($isAjax) {
+                /** @var Json $resultJson */
+                $resultJson = $this->resultJsonFactory->create();
+                return $resultJson->setData([
+                    'error' => true,
+                    'message' => __('An error occurred while rejecting the location.')
+                ]);
+            } else {
+                $this->messageManager->addErrorMessage(__('An error occurred while rejecting the location.'));
+                return $this->resultRedirectFactory->create()->setPath('*/*/');
+            }
         }
     }
 }

@@ -9,13 +9,14 @@ namespace Zhik\DealerLocator\Controller\Adminhtml\Location;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\ResultFactory;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
 
 /**
  * Delete location controller
  */
-class Delete extends Action
+class Delete extends Action implements HttpPostActionInterface
 {
     /**
      * Authorization level of a basic admin session

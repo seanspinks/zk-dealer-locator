@@ -82,12 +82,17 @@ class LocationActions extends Column
                             'post' => true
                         ];
                         $item[$name]['reject'] = [
-                            'href' => '#',
+                            'href' => $this->urlBuilder->getUrl(
+                                static::URL_PATH_REJECT,
+                                ['location_id' => $item['location_id']]
+                            ),
                             'label' => __('Reject'),
-                            'onclick' => sprintf(
-                                "require(['Zhik_DealerLocator/js/grid/actions'], function(actions) { actions.rejectLocation('%s'); }); return false;",
-                                $this->urlBuilder->getUrl(static::URL_PATH_REJECT, ['location_id' => $item['location_id']])
-                            )
+                            'callback' => 'Zhik_DealerLocator/js/grid/actions/reject',
+                            'confirm' => [
+                                'title' => __('Reject Location'),
+                                'message' => __('Are you sure you want to reject this location?')
+                            ],
+                            'post' => true
                         ];
                     }
                     
