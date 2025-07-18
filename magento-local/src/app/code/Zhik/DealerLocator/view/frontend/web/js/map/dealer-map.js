@@ -252,8 +252,12 @@ define([
                 };
                 
                 // Apply custom map styles if configured
+                console.log('[DealerLocator] Map style config:', this.mapStyle);
                 if (this.mapStyle && Array.isArray(this.mapStyle) && this.mapStyle.length > 0) {
                     mapOptions.styles = this.mapStyle;
+                    console.log('[DealerLocator] Applied custom map style with', this.mapStyle.length, 'rules');
+                } else {
+                    console.log('[DealerLocator] No custom map style configured');
                 }
                 
                 this.map = new google.maps.Map(

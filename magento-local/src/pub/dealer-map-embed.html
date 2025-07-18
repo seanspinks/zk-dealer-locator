@@ -507,13 +507,32 @@
             });
         });
         
-        // Define map style - you can customize this or load from configuration
-        // To use a custom style:
-        // 1. Go to https://mapstyle.withgoogle.com/
-        // 2. Create your custom style
-        // 3. Copy the JSON and replace the array below
-        // 4. Or configure it in Magento Admin: Stores > Configuration > Zhik > Dealer Locator > Map Display Settings > Google Maps Style JSON
-        const mapStyle = [
+        // Map configuration
+        let mapStyle = [];
+        let mapConfig = {
+            defaultLat: 40.7128,
+            defaultLng: -74.0060,
+            defaultZoom: 10,
+            defaultRadius: 50
+        };
+
+        // Load map configuration from server
+        async function loadMapConfig() {
+            try {
+                const response = await fetch('https://localhost/dealerlocator/map/config/');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.mapStyle && Array.isArray(config.mapStyle)) {
+                        mapStyle = config.mapStyle;
+                    }
+                    // Apply other configuration
+                    mapConfig = Object.assign(mapConfig, config);
+                    console.log('Map configuration loaded:', config);
+                }
+            } catch (error) {
+                console.error('Failed to load map configuration:', error);
+                // Use default style as fallback
+                mapStyle = [
             {
                 "featureType": "all",
                 "elementType": "geometry",
@@ -605,13 +624,18 @@
                 "stylers": [{"color": "#9e9e9e"}]
             }
         ];
+            }
+        }
         
         // Initialize Google Map
-        function initMap() {
+        async function initMap() {
+            // Load configuration first
+            await loadMapConfig();
+            
             try {
                 map = new google.maps.Map(document.getElementById('dealer-map-canvas'), {
-                    center: { lat: 40.7128, lng: -74.0060 },
-                    zoom: 10,
+                    center: { lat: parseFloat(mapConfig.defaultLat), lng: parseFloat(mapConfig.defaultLng) },
+                    zoom: mapConfig.defaultZoom,
                     mapTypeControl: false,
                     fullscreenControl: false,
                     streetViewControl: false,
