@@ -59,8 +59,14 @@
             justify-content: center;
         }
         
+        .search-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
         #search-input {
-            width: 100%;
+            flex: 1;
             padding: 16px 30px;
             border: 1px solid #e0e0e0;
             border-radius: 40px;
@@ -132,6 +138,33 @@
         }
         
         .global-view-btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 12px 24px;
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            white-space: nowrap;
+        }
+        
+        .global-view-btn:hover {
+            background: #f5f5f5;
+            border-color: #ccc;
+        }
+        
+        .global-view-btn.active {
+            background: #007cba;
+            color: white;
+            border-color: #007cba;
+        }
+        
+        .global-view-btn {
             padding: 10px 20px;
             background: white;
             border: 1px solid #e0e0e0;
@@ -163,10 +196,10 @@
             bottom: 0;
             left: 0;
             right: 0;
-            background: #f9f9f9;
+            background: #000000;
             max-height: 50%;
             overflow-y: auto;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
             transform: translateY(100%);
             transition: transform 0.3s ease;
         }
@@ -190,12 +223,12 @@
             margin: 0;
             font-size: 24px;
             font-weight: 600;
-            color: #333;
+            color: #ffffff;
         }
         
         .result-count {
             font-size: 16px;
-            color: #666;
+            color: #999999;
         }
         
         .results-close {
@@ -205,7 +238,7 @@
             cursor: pointer;
             font-size: 24px;
             line-height: 1;
-            color: #999;
+            color: #ffffff;
             background: none;
             border: none;
             padding: 0;
@@ -218,10 +251,10 @@
         }
         
         .dealer-card {
-            background: white;
-            border: 1px solid #e0e0e0;
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
             border-radius: 8px;
-            padding: 20px;
+            padding: 24px;
             cursor: pointer;
             transition: all 0.2s;
             display: flex;
@@ -230,13 +263,13 @@
         }
         
         .dealer-card:hover {
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255,255,255,0.1);
+            border-color: #3a3a3a;
         }
         
         .dealer-card.active {
-            border-color: #1976D2;
-            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+            border-color: #ffffff;
+            box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
         }
         
         .dealer-main {
@@ -244,41 +277,67 @@
         }
         
         .dealer-name {
-            margin: 0 0 8px 0;
-            font-size: 18px;
+            margin: 0 0 24px 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+        
+        .dealer-section {
+            margin-bottom: 20px;
+        }
+        
+        .section-label {
+            display: block;
+            font-size: 11px;
             font-weight: 600;
-            color: #333;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #999999;
+            margin-bottom: 10px;
         }
         
         .dealer-address {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-        
-        .dealer-phone,
-        .dealer-website,
-        .dealer-distance {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
+            color: #ffffff;
+            line-height: 1.6;
+            margin-bottom: 16px;
             font-size: 14px;
         }
         
+        .dealer-phone,
+        .dealer-email,
+        .dealer-website,
+        .dealer-distance {
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #ffffff;
+        }
+        
+        .dealer-phone span,
+        .dealer-email span,
+        .dealer-website span {
+            color: #ffffff;
+        }
+        
         .dealer-phone a,
+        .dealer-email a,
         .dealer-website a {
-            color: #1976D2;
+            color: #ffffff;
             text-decoration: none;
         }
         
         .dealer-phone a:hover,
+        .dealer-email a:hover,
         .dealer-website a:hover {
             text-decoration: underline;
         }
         
         .dealer-distance {
-            color: #666;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #ffffff;
+            margin-top: 16px;
         }
         
         .dealer-tags {
@@ -291,8 +350,8 @@
         .tag-label {
             display: inline-block;
             padding: 4px 8px;
-            background: #e3f2fd;
-            color: #1976D2;
+            background: #333333;
+            color: #ffffff;
             border-radius: 4px;
             font-size: 12px;
         }
@@ -300,26 +359,28 @@
         /* Dealer Actions */
         .dealer-actions {
             padding-top: 16px;
-            border-top: 1px solid #e0e0e0;
+            border-top: 1px solid #333333;
         }
         
         .action-directions {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 8px 16px;
-            background: #1976D2;
-            color: white;
+            padding: 10px 20px;
+            background: #ffffff;
+            color: #000000;
             border: none;
             border-radius: 4px;
             cursor: pointer;
             font-size: 14px;
-            font-weight: 500;
-            transition: background-color 0.2s;
+            font-weight: 600;
+            transition: all 0.2s;
+            text-decoration: none;
         }
         
         .action-directions:hover {
-            background: #1565C0;
+            background: #f0f0f0;
+            transform: translateY(-1px);
         }
         
         /* Icons */
@@ -327,6 +388,10 @@
             width: 14px;
             height: 14px;
             fill: currentColor;
+        }
+        
+        .dealer-card .icon {
+            fill: #ffffff;
         }
         
         .loading-overlay {
@@ -364,6 +429,108 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+        
+        /* Map Info Window Styling */
+        .map-info-window {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            padding: 16px;
+            min-width: 250px;
+            max-width: 280px;
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+        
+        .map-info-window .info-name {
+            margin: 0 0 12px 0;
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+        
+        .map-info-window .info-section {
+            margin-bottom: 12px;
+        }
+        
+        .map-info-window .info-label {
+            display: block;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #999999;
+            margin-bottom: 6px;
+        }
+        
+        .map-info-window .info-address {
+            color: #ffffff;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .map-info-window .info-item {
+            margin-bottom: 4px;
+            font-size: 13px;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+        
+        .map-info-window .info-link {
+            color: #ffffff;
+            text-decoration: none;
+        }
+        
+        .map-info-window .info-link:hover {
+            text-decoration: underline;
+        }
+        
+        .map-info-window .info-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #333333;
+        }
+        
+        .map-info-window .info-directions {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #ffffff;
+            color: #000000;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        
+        .map-info-window .info-directions:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+        
+        /* Google Maps Info Window Dark Theme Override */
+        .gm-style .gm-style-iw-c {
+            background: #1a1a1a !important;
+            border-radius: 8px !important;
+            padding: 0 !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5) !important;
+        }
+        
+        .gm-style .gm-style-iw-d {
+            overflow: auto !important;
+        }
+        
+        .gm-style .gm-style-iw-tc::after {
+            background: #1a1a1a !important;
+        }
+        
+        .gm-ui-hover-effect {
+            background: #333333 !important;
+            border-radius: 50% !important;
+        }
+        
+        .gm-ui-hover-effect span {
+            background-color: #ffffff !important;
         }
         
         .error-message {
@@ -421,6 +588,8 @@
             }
         }
     </style>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
     <div class="dealer-map-app">
@@ -431,18 +600,15 @@
         <div class="map-controls">
             <div class="search-container">
                 <input type="text" id="search-input" placeholder="Search" onkeypress="handleSearchKeyPress(event)">
+                <button class="global-view-btn" id="global-view-btn" onclick="toggleGlobalView()">
+                    All
+                </button>
             </div>
             
             <div class="tags-container" id="tags-container">
                 <div class="tags-wrapper" id="tags-wrapper">
                     <!-- Tags will be inserted here -->
                 </div>
-            </div>
-            
-            <div style="margin-top: 12px; text-align: center;">
-                <button class="global-view-btn" id="global-view-btn" onclick="toggleGlobalView()">
-                    Show All Locations
-                </button>
             </div>
         </div>
         
@@ -766,7 +932,6 @@
             showGlobalView = !showGlobalView;
             const btn = $('#global-view-btn');
             btn.toggleClass('active');
-            btn.text(showGlobalView ? 'Show Nearby Only' : 'Show All Locations');
             
             const center = map.getCenter();
             searchNearby(center.lat(), center.lng());
@@ -886,7 +1051,12 @@
                             lng: parseFloat(location.longitude)
                         },
                         title: location.name,
-                        animation: google.maps.Animation.DROP
+                        animation: google.maps.Animation.DROP,
+                        icon: {
+                            url: 'map-icon.png',
+                            scaledSize: new google.maps.Size(30, 30),
+                            anchor: new google.maps.Point(15, 30)
+                        }
                     });
                     
                     marker.addListener('click', function() {
@@ -925,22 +1095,53 @@
         
         // Show info window
         function showInfoWindow(marker, location) {
-            let content = '<div style="padding: 10px;">';
-            content += '<h4 style="margin: 0 0 8px 0;">' + location.name + '</h4>';
-            content += '<p style="margin: 0 0 5px 0;">' + location.address + '<br>';
-            content += location.city + ', ' + location.state + ' ' + location.zip + '</p>';
+            let content = '<div class="map-info-window">';
+            content += '<h4 class="info-name">' + location.name + '</h4>';
             
-            if (location.phone) {
-                content += '<p style="margin: 5px 0;"><a href="tel:' + location.phone + '">' + location.phone + '</a></p>';
+            // ADDRESS section
+            content += '<div class="info-section">';
+            content += '<span class="info-label">ADDRESS</span>';
+            content += '<div class="info-address">';
+            content += location.address + '<br>';
+            content += location.city + ', ' + location.state + ' ' + location.zip;
+            if (location.country) {
+                content += '<br>' + location.country;
+            }
+            content += '</div>';
+            content += '</div>';
+            
+            // CONTACT section
+            if (location.phone || location.email || location.website) {
+                content += '<div class="info-section">';
+                content += '<span class="info-label">CONTACT</span>';
+                
+                if (location.phone) {
+                    content += '<div class="info-item">';
+                    content += '<a href="tel:' + location.phone + '" class="info-link">' + location.phone + '</a>';
+                    content += '</div>';
+                }
+                
+                if (location.email) {
+                    content += '<div class="info-item">';
+                    content += '<a href="mailto:' + location.email + '" class="info-link">' + location.email + '</a>';
+                    content += '</div>';
+                }
+                
+                if (location.website) {
+                    content += '<div class="info-item">';
+                    let websiteDisplay = location.website.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                    content += '<a href="' + location.website + '" target="_blank" class="info-link">' + websiteDisplay + '</a>';
+                    content += '</div>';
+                }
+                
+                content += '</div>';
             }
             
-            if (location.website) {
-                content += '<p style="margin: 5px 0;"><a href="' + location.website + '" target="_blank">Visit Website</a></p>';
-            }
-            
-            content += '<p style="margin: 10px 0 0 0;"><a href="https://www.google.com/maps/dir/?api=1&destination=' + 
+            content += '<div class="info-actions">';
+            content += '<a href="https://www.google.com/maps/dir/?api=1&destination=' + 
                        encodeURIComponent(location.address + ', ' + location.city + ', ' + location.state + ' ' + location.zip) + 
-                       '" target="_blank">Get Directions</a></p>';
+                       '" target="_blank" class="info-directions">Get Directions</a>';
+            content += '</div>';
             
             content += '</div>';
             
@@ -974,28 +1175,45 @@
                     
                     let html = '<div class="dealer-main">';
                     html += '<h3 class="dealer-name">' + location.name + '</h3>';
+                    
+                    // ADDRESS section
+                    html += '<div class="dealer-section">';
+                    html += '<span class="section-label">ADDRESS</span>';
                     html += '<div class="dealer-address">';
                     html += '<span>' + location.address + '</span><br>';
                     html += '<span>' + location.city + ', ' + location.state + ' ' + location.zip + '</span>';
+                    if (location.country) {
+                        html += '<br><span>' + location.country + '</span>';
+                    }
                     html += '</div>';
+                    html += '</div>';
+                    
+                    // CONTACT section
+                    html += '<div class="dealer-section">';
+                    html += '<span class="section-label">CONTACT</span>';
                     
                     if (location.phone) {
                         html += '<div class="dealer-phone">';
-                        html += '<svg class="icon icon-phone" width="14" height="14" viewBox="0 0 14 14">';
-                        html += '<path d="M13.7,11.1l-2.1-2.1c-0.4-0.4-1.1-0.4-1.5,0l-1,1c-0.1,0-0.3-0.1-0.5-0.2c-0.7-0.4-1.6-1-2.4-1.8C5.4,7.2,4.8,6.3,4.4,5.6C4.3,5.4,4.2,5.2,4.2,5.1l0.7-0.7l0.3-0.3c0.4-0.4,0.4-1.1,0-1.5L3.1,0.5C2.7,0.1,2,0.1,1.6,0.5L0.9,1.2l0,0C0.6,1.5,0.3,1.9,0.2,2.4C0,2.8,0,3.2,0,3.7c0.1,1.3,0.6,2.5,1.7,3.9c1.5,1.9,3.3,3.4,5.4,4.4c1,0.5,2.3,1,3.7,1.1c0.1,0,0.1,0,0.2,0c0.6,0,1.1-0.2,1.5-0.6c0,0,0,0,0,0l0.7-0.7C14.1,12.2,14.1,11.5,13.7,11.1z"/>';
-                        html += '</svg>';
+                        html += '<span>Phone: </span>';
                         html += '<a href="tel:' + location.phone + '">' + location.phone + '</a>';
+                        html += '</div>';
+                    }
+                    
+                    if (location.email) {
+                        html += '<div class="dealer-email">';
+                        html += '<span>Email: </span>';
+                        html += '<a href="mailto:' + location.email + '">' + location.email + '</a>';
                         html += '</div>';
                     }
                     
                     if (location.website) {
                         html += '<div class="dealer-website">';
-                        html += '<svg class="icon icon-web" width="14" height="14" viewBox="0 0 14 14">';
-                        html += '<path d="M7,0C3.1,0,0,3.1,0,7s3.1,7,7,7s7-3.1,7-7S10.9,0,7,0z M12.2,4.3h-2.5c-0.2-1-0.5-1.9-1-2.6C10.2,2,11.5,3,12.2,4.3z M7,1.4c0.6,0.8,1,1.7,1.3,2.8H5.7C6,3.1,6.4,2.2,7,1.4z M1.6,8.4C1.5,7.9,1.4,7.5,1.4,7s0.1-0.9,0.2-1.4h2.9C4.4,6.1,4.4,6.5,4.4,7s0,0.9,0.1,1.4H1.6z M1.8,9.7h2.5c0.2,1,0.5,1.9,1,2.6C3.8,12,2.5,11,1.8,9.7z M4.3,4.3H1.8c0.7-1.3,2-2.3,3.5-2.6C4.8,2.4,4.5,3.3,4.3,4.3z M7,12.6c-0.6-0.8-1-1.7-1.3-2.8h2.6C7.9,10.9,7.6,11.8,7,12.6z M8.6,8.4H5.4C5.3,7.9,5.3,7.5,5.3,7s0-0.9,0.1-1.4h3.3C8.7,6.1,8.7,6.5,8.7,7S8.7,7.9,8.6,8.4z M8.7,12.3c0.5-0.7,0.8-1.6,1-2.6h2.5C11.5,11,10.2,12,8.7,12.3z M9.5,8.4c0.1-0.5,0.1-0.9,0.1-1.4s0-0.9-0.1-1.4h2.9c0.1,0.5,0.2,0.9,0.2,1.4s-0.1,0.9-0.2,1.4H9.5z"/>';
-                        html += '</svg>';
-                        html += '<a href="' + location.website + '" target="_blank">Visit Website</a>';
+                        html += '<span>Web: </span>';
+                        html += '<a href="' + location.website + '" target="_blank">' + location.website + '</a>';
                         html += '</div>';
                     }
+                    
+                    html += '</div>'; // Close CONTACT section
                     
                     if (location.distance) {
                         html += '<div class="dealer-distance">';
@@ -1017,10 +1235,7 @@
                     html += '</div>';
                     html += '<div class="dealer-actions">';
                     html += '<button type="button" class="action-directions" onclick="getDirections(' + location.latitude + ',' + location.longitude + ',\'' + encodeURIComponent(location.address + ', ' + location.city + ', ' + location.state + ' ' + location.zip) + '\'); event.stopPropagation();">';
-                    html += '<svg class="icon icon-directions" width="16" height="16" viewBox="0 0 16 16">';
-                    html += '<path d="M15.8,0.1c-0.1-0.1-0.3-0.1-0.5,0L0.2,7.6C0.1,7.7,0,7.8,0,8s0.1,0.3,0.2,0.4l3.9,2.3l2.3,3.9C6.5,14.9,6.7,15,7,15c0,0,0,0,0,0c0.2,0,0.4-0.1,0.5-0.3l7.5-15.1C16,9.4,16,9.2,15.8,0.1z M6.8,13.2l-1.8-3l5.7-5.7c0.2-0.2,0.2-0.5,0-0.7s-0.5-0.2-0.7,0L4.3,9.5l-3-1.8L14.3,1.7L6.8,13.2z"/>';
-                    html += '</svg>';
-                    html += '<span>Get Directions</span>';
+                    html += 'Get Directions';
                     html += '</button>';
                     html += '</div>';
                     

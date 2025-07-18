@@ -271,16 +271,16 @@ define([
                     self.mapErrorMessage('Google Maps authentication failed. Please check your API key configuration.');
                 };
 
-            this.infoWindow = new google.maps.InfoWindow();
-            
-            // Initialize marker clusterer only if enabled
-            if (this.clusterEnabled) {
-                this.markerCluster = new markerClusterer.MarkerClusterer({
-                    map: this.map,
-                    markers: [],
-                    ...this.clusterOptions
-                });
-            }
+                this.infoWindow = new google.maps.InfoWindow();
+                
+                // Initialize marker clusterer only if enabled
+                if (this.clusterEnabled) {
+                    this.markerCluster = new markerClusterer.MarkerClusterer({
+                        map: this.map,
+                        markers: [],
+                        ...this.clusterOptions
+                    });
+                }
             
             } catch (error) {
                 console.error('Failed to initialize map:', error);
@@ -547,7 +547,12 @@ define([
                             lng: parseFloat(location.longitude)
                         },
                         title: location.name,
-                        animation: google.maps.Animation.DROP
+                        animation: google.maps.Animation.DROP,
+                        icon: {
+                            url: require.toUrl('Zhik_DealerLocator/images/map-icon.png'),
+                            scaledSize: new google.maps.Size(30, 30),
+                            anchor: new google.maps.Point(15, 30)
+                        }
                     });
                     
                     // Store reference to location data
@@ -618,23 +623,51 @@ define([
          */
         buildInfoWindowContent: function (location) {
             var content = '<div class="map-info-window">';
-            content += '<h4>' + _.escape(location.name) + '</h4>';
-            content += '<p>' + _.escape(location.address) + '<br>';
-            content += _.escape(location.city + ', ' + location.state + ' ' + location.zip) + '</p>';
+            content += '<h4 class="info-name">' + _.escape(location.name) + '</h4>';
             
-            if (location.phone) {
-                content += '<p><a href="tel:' + _.escape(location.phone) + '" class="info-phone">' + _.escape(location.phone) + '</a></p>';
+            // ADDRESS section
+            content += '<div class="info-section">';
+            content += '<span class="info-label">ADDRESS</span>';
+            content += '<div class="info-address">';
+            content += _.escape(location.address) + '<br>';
+            content += _.escape(location.city + ', ' + location.state + ' ' + location.zip);
+            if (location.country) {
+                content += '<br>' + _.escape(location.country);
             }
+            content += '</div>';
+            content += '</div>';
             
-            if (location.website) {
-                content += '<p><a href="' + _.escape(location.website) + '" target="_blank" class="info-website">' + $t('Visit Website') + '</a></p>';
+            // CONTACT section
+            if (location.phone || location.email || location.website) {
+                content += '<div class="info-section">';
+                content += '<span class="info-label">CONTACT</span>';
+                
+                if (location.phone) {
+                    content += '<div class="info-item">';
+                    content += '<a href="tel:' + _.escape(location.phone) + '" class="info-link">' + _.escape(location.phone) + '</a>';
+                    content += '</div>';
+                }
+                
+                if (location.email) {
+                    content += '<div class="info-item">';
+                    content += '<a href="mailto:' + _.escape(location.email) + '" class="info-link">' + _.escape(location.email) + '</a>';
+                    content += '</div>';
+                }
+                
+                if (location.website) {
+                    content += '<div class="info-item">';
+                    var websiteDisplay = location.website.replace(/^https?:\/\//, '').replace(/\/$/, '');
+                    content += '<a href="' + _.escape(location.website) + '" target="_blank" class="info-link">' + _.escape(websiteDisplay) + '</a>';
+                    content += '</div>';
+                }
+                
+                content += '</div>';
             }
             
             content += '<div class="info-actions">';
             content += '<a href="https://www.google.com/maps/dir/?api=1&destination=' + 
                        encodeURIComponent(location.address + ', ' + location.city + ', ' + location.state + ' ' + location.zip) + 
                        '" target="_blank" class="info-directions">';
-            content += '<svg class="icon" width="16" height="16"><use xlink:href="#icon-directions"></use></svg> ';
             content += $t('Get Directions') + '</a>';
             content += '</div>';
             
