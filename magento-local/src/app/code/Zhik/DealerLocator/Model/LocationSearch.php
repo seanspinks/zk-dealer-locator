@@ -193,13 +193,15 @@ class LocationSearch implements LocationSearchInterface
         $items = [];
         
         foreach ($collection as $location) {
+            // Load tags for each location
+            $locationTags = $location->getResource()->getLocationTags($location->getLocationId());
+            $location->setData('tag_ids', $locationTags);
+            
             // Filter by tags if provided
             if ($tagIds !== null && !empty($tagIds)) {
-                $locationTags = $location->getResource()->getLocationTags($location->getLocationId());
                 if (!array_intersect($tagIds, $locationTags)) {
                     continue;
                 }
-                $location->setData('tag_ids', $locationTags);
             }
             
             // Add distance to location data
