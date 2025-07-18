@@ -20,6 +20,9 @@
                 <default_latitude>40.7128</default_latitude>
                 <default_longitude>-74.0060</default_longitude>
                 <default_zoom>10</default_zoom>
+                <cluster_enabled>1</cluster_enabled>
+                <cluster_grid_size>60</cluster_grid_size>
+                <cluster_min_size>3</cluster_min_size>
             </map>
             <email>
                 <send_customer_notifications>1</send_customer_notifications>

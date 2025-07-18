@@ -16,8 +16,8 @@
     <!-- Data interfaces preferences -->
     <preference for="Zhik\DealerLocator\Api\Data\LocationInterface" type="Zhik\DealerLocator\Model\Location"/>
     <preference for="Zhik\DealerLocator\Api\Data\TagInterface" type="Zhik\DealerLocator\Model\Tag"/>
-    <preference for="Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
-    <preference for="Zhik\DealerLocator\Api\Data\TagSearchResultsInterface" type="Magento\Framework\Api\SearchResults"/>
+    <preference for="Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface" type="Zhik\DealerLocator\Model\LocationSearchResults"/>
+    <preference for="Zhik\DealerLocator\Api\Data\TagSearchResultsInterface" type="Zhik\DealerLocator\Model\TagSearchResults"/>
     
     <!-- Grid collections -->
     <type name="Magento\Framework\View\Element\UiComponent\DataProvider\CollectionFactory">

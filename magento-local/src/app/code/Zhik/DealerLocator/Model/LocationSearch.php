@@ -88,7 +88,6 @@ class LocationSearch implements LocationSearchInterface
         ?int $page = null
     ): \Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface {
         $this->searchCriteriaBuilder->addFilter('status', LocationInterface::STATUS_APPROVED);
-        $this->searchCriteriaBuilder->addFilter('is_active', 1);
         $this->searchCriteriaBuilder->addFilter('is_latest', 1);
 
         if ($query !== null) {
@@ -166,7 +165,6 @@ class LocationSearch implements LocationSearchInterface
         
         // Base filters
         $collection->addFieldToFilter('status', LocationInterface::STATUS_APPROVED);
-        $collection->addFieldToFilter('is_active', 1);
         $collection->addFieldToFilter('is_latest', 1);
         
         // Calculate distance using Haversine formula
