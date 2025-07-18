@@ -157,40 +157,51 @@
             border-color: #28a745;
         }
         
-        .results-panel {
+        /* Results Panel - Styled like main dealer locator */
+        .dealer-results-section {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
-            background: white;
-            max-height: 40%;
+            background: #f9f9f9;
+            max-height: 50%;
             overflow-y: auto;
             box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
             transform: translateY(100%);
             transition: transform 0.3s ease;
         }
         
-        .results-panel.show {
+        .dealer-results-section.show {
             transform: translateY(0);
         }
         
-        .results-header {
-            position: sticky;
-            top: 0;
-            background: white;
-            padding: 15px 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        .results-container {
+            padding: 20px;
         }
         
-        .results-count {
-            font-size: 14px;
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 24px;
+        }
+        
+        .results-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .result-count {
+            font-size: 16px;
             color: #666;
         }
         
         .results-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
             cursor: pointer;
             font-size: 24px;
             line-height: 1;
@@ -200,68 +211,122 @@
             padding: 0;
         }
         
-        .results-list {
-            padding: 15px;
+        .dealer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
         }
         
-        .location-item {
-            padding: 15px;
+        .dealer-card {
+            background: white;
             border: 1px solid #e0e0e0;
             border-radius: 8px;
-            margin-bottom: 10px;
+            padding: 20px;
             cursor: pointer;
             transition: all 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
         }
         
-        .location-item:hover {
-            border-color: #007cba;
-            box-shadow: 0 2px 8px rgba(0,123,186,0.1);
+        .dealer-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
         }
         
-        .location-item.active {
-            border-color: #007cba;
-            background: #f0f7ff;
+        .dealer-card.active {
+            border-color: #1976D2;
+            box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
         }
         
-        .location-name {
-            font-size: 16px;
+        .dealer-main {
+            flex: 1;
+        }
+        
+        .dealer-name {
+            margin: 0 0 8px 0;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 5px;
             color: #333;
         }
         
-        .location-address {
+        .dealer-address {
+            color: #666;
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .dealer-phone,
+        .dealer-website,
+        .dealer-distance {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
             font-size: 14px;
-            color: #666;
-            margin-bottom: 8px;
         }
         
-        .location-details {
-            font-size: 13px;
-            color: #666;
-        }
-        
-        .location-details a {
-            color: #007cba;
+        .dealer-phone a,
+        .dealer-website a {
+            color: #1976D2;
             text-decoration: none;
         }
         
-        .location-details a:hover {
+        .dealer-phone a:hover,
+        .dealer-website a:hover {
             text-decoration: underline;
         }
         
-        .location-tags {
-            margin-top: 8px;
+        .dealer-distance {
+            color: #666;
         }
         
-        .location-tag {
+        .dealer-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+        
+        .tag-label {
             display: inline-block;
-            font-size: 11px;
-            padding: 2px 8px;
-            background: #e0e0e0;
-            border-radius: 12px;
-            margin-right: 5px;
-            color: #555;
+            padding: 4px 8px;
+            background: #e3f2fd;
+            color: #1976D2;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* Dealer Actions */
+        .dealer-actions {
+            padding-top: 16px;
+            border-top: 1px solid #e0e0e0;
+        }
+        
+        .action-directions {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #1976D2;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+        
+        .action-directions:hover {
+            background: #1565C0;
+        }
+        
+        /* Icons */
+        .icon {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
         }
         
         .loading-overlay {
@@ -341,8 +406,18 @@
                 gap: 3px;
             }
             
-            .results-panel {
+            .dealer-results-section {
                 max-height: 60%;
+            }
+            
+            .dealer-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            
+            .results-header {
+                flex-direction: column;
+                gap: 8px;
             }
         }
     </style>
@@ -372,14 +447,16 @@
         </div>
         
         <!-- Results Panel -->
-        <div class="results-panel" id="results-panel">
-            <div class="results-header">
-                <h3>Locations Found</h3>
-                <span class="results-count" id="results-count">0 results</span>
+        <div class="dealer-results-section" id="results-panel">
+            <div class="results-container">
+                <div class="results-header">
+                    <h2>Dealer Locations</h2>
+                    <span class="result-count" id="results-count">0 locations found</span>
+                </div>
                 <button class="results-close" onclick="closeResults()">&times;</button>
-            </div>
-            <div class="results-list" id="results-list">
-                <!-- Results will be inserted here -->
+                <div class="dealer-grid" id="results-list">
+                    <!-- Results will be inserted here -->
+                </div>
             </div>
         </div>
         
@@ -853,55 +930,78 @@
             const list = $('#results-list');
             const count = $('#results-count');
             
-            count.text(results.length + ' results');
+            count.text(results.length + ' locations found');
             list.empty();
             
             if (results.length === 0) {
-                list.html('<p style="padding: 20px; text-align: center; color: #666;">No locations found. Try adjusting your search.</p>');
+                list.html('<p style="padding: 40px; text-align: center; color: #666;">No locations found. Try adjusting your search.</p>');
             } else {
                 results.forEach((location, index) => {
-                    const item = $('<div>')
-                        .addClass('location-item')
+                    const card = $('<div>')
+                        .addClass('dealer-card')
                         .attr('data-index', index)
                         .click(function() {
                             selectLocation(index);
                         });
                     
                     if (index === selectedLocationIndex) {
-                        item.addClass('active');
+                        card.addClass('active');
                     }
                     
-                    let html = '<div class="location-name">' + location.name + '</div>';
-                    html += '<div class="location-address">';
-                    html += location.address + '<br>';
-                    html += location.city + ', ' + location.state + ' ' + location.zip;
+                    let html = '<div class="dealer-main">';
+                    html += '<h3 class="dealer-name">' + location.name + '</h3>';
+                    html += '<div class="dealer-address">';
+                    html += '<span>' + location.address + '</span><br>';
+                    html += '<span>' + location.city + ', ' + location.state + ' ' + location.zip + '</span>';
                     html += '</div>';
-                    html += '<div class="location-details">';
                     
                     if (location.phone) {
-                        html += '<a href="tel:' + location.phone + '">' + location.phone + '</a> | ';
+                        html += '<div class="dealer-phone">';
+                        html += '<svg class="icon icon-phone" width="14" height="14" viewBox="0 0 14 14">';
+                        html += '<path d="M13.7,11.1l-2.1-2.1c-0.4-0.4-1.1-0.4-1.5,0l-1,1c-0.1,0-0.3-0.1-0.5-0.2c-0.7-0.4-1.6-1-2.4-1.8C5.4,7.2,4.8,6.3,4.4,5.6C4.3,5.4,4.2,5.2,4.2,5.1l0.7-0.7l0.3-0.3c0.4-0.4,0.4-1.1,0-1.5L3.1,0.5C2.7,0.1,2,0.1,1.6,0.5L0.9,1.2l0,0C0.6,1.5,0.3,1.9,0.2,2.4C0,2.8,0,3.2,0,3.7c0.1,1.3,0.6,2.5,1.7,3.9c1.5,1.9,3.3,3.4,5.4,4.4c1,0.5,2.3,1,3.7,1.1c0.1,0,0.1,0,0.2,0c0.6,0,1.1-0.2,1.5-0.6c0,0,0,0,0,0l0.7-0.7C14.1,12.2,14.1,11.5,13.7,11.1z"/>';
+                        html += '</svg>';
+                        html += '<a href="tel:' + location.phone + '">' + location.phone + '</a>';
+                        html += '</div>';
                     }
                     
                     if (location.website) {
-                        html += '<a href="' + location.website + '" target="_blank">Website</a> | ';
+                        html += '<div class="dealer-website">';
+                        html += '<svg class="icon icon-web" width="14" height="14" viewBox="0 0 14 14">';
+                        html += '<path d="M7,0C3.1,0,0,3.1,0,7s3.1,7,7,7s7-3.1,7-7S10.9,0,7,0z M12.2,4.3h-2.5c-0.2-1-0.5-1.9-1-2.6C10.2,2,11.5,3,12.2,4.3z M7,1.4c0.6,0.8,1,1.7,1.3,2.8H5.7C6,3.1,6.4,2.2,7,1.4z M1.6,8.4C1.5,7.9,1.4,7.5,1.4,7s0.1-0.9,0.2-1.4h2.9C4.4,6.1,4.4,6.5,4.4,7s0,0.9,0.1,1.4H1.6z M1.8,9.7h2.5c0.2,1,0.5,1.9,1,2.6C3.8,12,2.5,11,1.8,9.7z M4.3,4.3H1.8c0.7-1.3,2-2.3,3.5-2.6C4.8,2.4,4.5,3.3,4.3,4.3z M7,12.6c-0.6-0.8-1-1.7-1.3-2.8h2.6C7.9,10.9,7.6,11.8,7,12.6z M8.6,8.4H5.4C5.3,7.9,5.3,7.5,5.3,7s0-0.9,0.1-1.4h3.3C8.7,6.1,8.7,6.5,8.7,7S8.7,7.9,8.6,8.4z M8.7,12.3c0.5-0.7,0.8-1.6,1-2.6h2.5C11.5,11,10.2,12,8.7,12.3z M9.5,8.4c0.1-0.5,0.1-0.9,0.1-1.4s0-0.9-0.1-1.4h2.9c0.1,0.5,0.2,0.9,0.2,1.4s-0.1,0.9-0.2,1.4H9.5z"/>';
+                        html += '</svg>';
+                        html += '<a href="' + location.website + '" target="_blank">Visit Website</a>';
+                        html += '</div>';
                     }
                     
                     if (location.distance) {
-                        html += location.distance.toFixed(1) + ' miles';
+                        html += '<div class="dealer-distance">';
+                        html += '<svg class="icon icon-distance" width="14" height="14" viewBox="0 0 14 14">';
+                        html += '<path d="M7,0C4.2,0,2,2.2,2,5c0,3.5,5,9,5,9s5-5.5,5-9C12,2.2,9.8,0,7,0z M7,7C5.9,7,5,6.1,5,5s0.9-2,2-2s2,0.9,2,2S8.1,7,7,7z"/>';
+                        html += '</svg>';
+                        html += '<span>' + location.distance.toFixed(1) + ' miles</span>';
+                        html += '</div>';
                     }
                     
-                    html += '</div>';
-                    
                     if (location.tags) {
-                        html += '<div class="location-tags">';
+                        html += '<div class="dealer-tags">';
                         location.tags.split(',').forEach(tag => {
-                            html += '<span class="location-tag">' + tag.trim() + '</span>';
+                            html += '<span class="tag-label">' + tag.trim() + '</span>';
                         });
                         html += '</div>';
                     }
                     
-                    item.html(html);
-                    list.append(item);
+                    html += '</div>';
+                    html += '<div class="dealer-actions">';
+                    html += '<button type="button" class="action-directions" onclick="getDirections(' + location.latitude + ',' + location.longitude + ',\'' + encodeURIComponent(location.address + ', ' + location.city + ', ' + location.state + ' ' + location.zip) + '\'); event.stopPropagation();">';
+                    html += '<svg class="icon icon-directions" width="16" height="16" viewBox="0 0 16 16">';
+                    html += '<path d="M15.8,0.1c-0.1-0.1-0.3-0.1-0.5,0L0.2,7.6C0.1,7.7,0,7.8,0,8s0.1,0.3,0.2,0.4l3.9,2.3l2.3,3.9C6.5,14.9,6.7,15,7,15c0,0,0,0,0,0c0.2,0,0.4-0.1,0.5-0.3l7.5-15.1C16,9.4,16,9.2,15.8,0.1z M6.8,13.2l-1.8-3l5.7-5.7c0.2-0.2,0.2-0.5,0-0.7s-0.5-0.2-0.7,0L4.3,9.5l-3-1.8L14.3,1.7L6.8,13.2z"/>';
+                    html += '</svg>';
+                    html += '<span>Get Directions</span>';
+                    html += '</button>';
+                    html += '</div>';
+                    
+                    card.html(html);
+                    list.append(card);
                 });
             }
             
@@ -934,6 +1034,12 @@
         // Close results panel
         function closeResults() {
             $('#results-panel').removeClass('show');
+        }
+        
+        // Get directions
+        function getDirections(lat, lng, address) {
+            const url = 'https://www.google.com/maps/dir/?api=1&destination=' + address;
+            window.open(url, '_blank');
         }
         
         // Fit map to bounds
