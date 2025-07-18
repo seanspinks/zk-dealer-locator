@@ -42,66 +42,50 @@
         
         .map-controls {
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
+            top: 20px;
+            left: 20px;
+            right: 20px;
             z-index: 1000;
+            background: #3a3a3a;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
         
         .search-container {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            display: flex;
-            gap: 10px;
-            max-width: 600px;
-            margin: 0 auto;
+            margin-bottom: 15px;
         }
         
         #search-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
+            width: 100%;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
             outline: none;
+            background: white;
+            color: #333;
+            font-weight: 400;
+        }
+        
+        #search-input::placeholder {
+            color: #999;
+            font-weight: 300;
         }
         
         #search-input:focus {
-            border-color: #007cba;
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
         }
         
         .btn {
-            padding: 8px 16px;
-            background: #007cba;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 14px;
-            white-space: nowrap;
-            transition: background-color 0.2s;
-        }
-        
-        .btn:hover {
-            background: #005a87;
+            display: none; /* Hide default buttons */
         }
         
         .btn-location {
-            background: #28a745;
-        }
-        
-        .btn-location:hover {
-            background: #218838;
+            display: none; /* Hide location button */
         }
         
         .tags-container {
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-top: 10px;
             display: none;
         }
         
@@ -112,40 +96,38 @@
         .tags-wrapper {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 12px;
             align-items: center;
         }
         
         .tag-chip {
             display: inline-flex;
             align-items: center;
-            padding: 5px 12px;
-            background: #f0f0f0;
-            border-radius: 20px;
-            font-size: 13px;
+            padding: 12px 24px;
+            background: white;
+            border-radius: 50px;
+            font-size: 18px;
             cursor: pointer;
             transition: all 0.2s;
             user-select: none;
-            border: 2px solid transparent;
+            border: none;
+            color: #333;
+            font-weight: 400;
         }
         
         .tag-chip:hover {
-            background: #e0e0e0;
+            background: #f0f0f0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
         
         .tag-chip.active {
             background: #007cba;
             color: white;
-            border-color: #005a87;
         }
         
         .global-view-btn {
-            margin-left: auto;
-            background: #6c757d;
-        }
-        
-        .global-view-btn.active {
-            background: #28a745;
+            display: none; /* Hide global view button per design */
         }
         
         .results-panel {
@@ -312,17 +294,24 @@
         
         @media (max-width: 768px) {
             .map-controls {
-                left: 5px;
-                right: 5px;
-                top: 5px;
-            }
-            
-            .search-container {
-                flex-wrap: wrap;
+                left: 10px;
+                right: 10px;
+                top: 10px;
+                padding: 15px;
             }
             
             #search-input {
-                width: 100%;
+                padding: 14px 20px;
+                font-size: 16px;
+            }
+            
+            .tag-chip {
+                padding: 10px 20px;
+                font-size: 16px;
+            }
+            
+            .tags-wrapper {
+                gap: 8px;
             }
             
             .results-panel {
@@ -339,17 +328,12 @@
         <!-- Search Controls -->
         <div class="map-controls">
             <div class="search-container">
-                <input type="text" id="search-input" placeholder="Search city, ZIP code, or address...">
-                <button class="btn" onclick="performSearch()">Search</button>
-                <button class="btn btn-location" onclick="useMyLocation()">My Location</button>
+                <input type="text" id="search-input" placeholder="Search" onkeypress="handleSearchKeyPress(event)">
             </div>
             
             <div class="tags-container" id="tags-container">
                 <div class="tags-wrapper" id="tags-wrapper">
                     <!-- Tags will be inserted here -->
-                    <button class="btn global-view-btn" id="global-view-btn" onclick="toggleGlobalView()">
-                        Global View
-                    </button>
                 </div>
             </div>
         </div>
@@ -524,19 +508,6 @@
                 
                 wrapper.append(chip);
             });
-            
-            // Add global view button
-            const globalBtn = $('<button>')
-                .addClass('btn global-view-btn')
-                .attr('id', 'global-view-btn')
-                .text('Global View')
-                .click(toggleGlobalView);
-            
-            if (showGlobalView) {
-                globalBtn.addClass('active');
-            }
-            
-            wrapper.append(globalBtn);
         }
         
         // Toggle tag selection
@@ -563,6 +534,13 @@
             
             const center = map.getCenter();
             searchNearby(center.lat(), center.lng());
+        }
+        
+        // Handle search key press
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
         }
         
         // Perform search
