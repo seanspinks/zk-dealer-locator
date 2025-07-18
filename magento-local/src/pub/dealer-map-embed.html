@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer Locator Map - Embed Version</title>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Knockout.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js"></script>
+    
+    <!-- Underscore.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.13.6/underscore-min.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        .dealer-map-app {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #f5f5f5;
+        }
+        
+        #dealer-map-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            z-index: 1000;
+        }
+        
+        .search-container {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        #search-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        #search-input:focus {
+            border-color: #007cba;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            white-space: nowrap;
+            transition: background-color 0.2s;
+        }
+        
+        .btn:hover {
+            background: #005a87;
+        }
+        
+        .btn-location {
+            background: #28a745;
+        }
+        
+        .btn-location:hover {
+            background: #218838;
+        }
+        
+        .tags-container {
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 10px;
+            display: none;
+        }
+        
+        .tags-container.has-tags {
+            display: block;
+        }
+        
+        .tags-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+        }
+        
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+            border: 2px solid transparent;
+        }
+        
+        .tag-chip:hover {
+            background: #e0e0e0;
+        }
+        
+        .tag-chip.active {
+            background: #007cba;
+            color: white;
+            border-color: #005a87;
+        }
+        
+        .global-view-btn {
+            margin-left: auto;
+            background: #6c757d;
+        }
+        
+        .global-view-btn.active {
+            background: #28a745;
+        }
+        
+        .results-panel {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            max-height: 40%;
+            overflow-y: auto;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .results-panel.show {
+            transform: translateY(0);
+        }
+        
+        .results-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .results-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .results-close {
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+            color: #999;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        
+        .results-list {
+            padding: 15px;
+        }
+        
+        .location-item {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .location-item:hover {
+            border-color: #007cba;
+            box-shadow: 0 2px 8px rgba(0,123,186,0.1);
+        }
+        
+        .location-item.active {
+            border-color: #007cba;
+            background: #f0f7ff;
+        }
+        
+        .location-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+            color: #333;
+        }
+        
+        .location-address {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .location-details {
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .location-details a {
+            color: #007cba;
+            text-decoration: none;
+        }
+        
+        .location-details a:hover {
+            text-decoration: underline;
+        }
+        
+        .location-tags {
+            margin-top: 8px;
+        }
+        
+        .location-tag {
+            display: inline-block;
+            font-size: 11px;
+            padding: 2px 8px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            margin-right: 5px;
+            color: #555;
+        }
+        
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .loading-overlay.show {
+            display: flex;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #007cba;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 400px;
+            display: none;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        @media (max-width: 768px) {
+            .map-controls {
+                left: 5px;
+                right: 5px;
+                top: 5px;
+            }
+            
+            .search-container {
+                flex-wrap: wrap;
+            }
+            
+            #search-input {
+                width: 100%;
+            }
+            
+            .results-panel {
+                max-height: 60%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dealer-map-app">
+        <!-- Map Container -->
+        <div id="dealer-map-canvas"></div>
+        
+        <!-- Search Controls -->
+        <div class="map-controls">
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Search city, ZIP code, or address...">
+                <button class="btn" onclick="performSearch()">Search</button>
+                <button class="btn btn-location" onclick="useMyLocation()">My Location</button>
+            </div>
+            
+            <div class="tags-container" id="tags-container">
+                <div class="tags-wrapper" id="tags-wrapper">
+                    <!-- Tags will be inserted here -->
+                    <button class="btn global-view-btn" id="global-view-btn" onclick="toggleGlobalView()">
+                        Global View
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Results Panel -->
+        <div class="results-panel" id="results-panel">
+            <div class="results-header">
+                <h3>Locations Found</h3>
+                <span class="results-count" id="results-count">0 results</span>
+                <button class="results-close" onclick="closeResults()">&times;</button>
+            </div>
+            <div class="results-list" id="results-list">
+                <!-- Results will be inserted here -->
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="loading-overlay" id="loading">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <p>Loading map...</p>
+            </div>
+        </div>
+        
+        <!-- Error Message -->
+        <div class="error-message" id="error-message">
+            <h3>Unable to load map</h3>
+            <p>Please check your internet connection and try again.</p>
+        </div>
+    </div>
+    
+    <script>
+        // Global variables
+        let map;
+        let markers = [];
+        let markerCluster;
+        let infoWindow;
+        let autocomplete;
+        let selectedTags = [];
+        let availableTags = [];
+        let locations = [];
+        let selectedLocationIndex = null;
+        let showGlobalView = false;
+        
+        // API endpoints - adjust these to match your setup
+        const API_BASE = window.location.origin;
+        const SEARCH_URL = API_BASE + '/dealerlocator/location/search/';
+        const TAGS_URL = API_BASE + '/dealerlocator/tag/lists/';
+        const GEOCODE_URL = API_BASE + '/dealerlocator/map/geocode/';
+        
+        // Initialize when page loads
+        $(document).ready(function() {
+            showLoading(true);
+            loadTags();
+            
+            // Enter key handler for search
+            $('#search-input').keypress(function(e) {
+                if (e.which === 13) {
+                    performSearch();
+                }
+            });
+        });
+        
+        // Initialize Google Map
+        function initMap() {
+            try {
+                map = new google.maps.Map(document.getElementById('dealer-map-canvas'), {
+                    center: { lat: 40.7128, lng: -74.0060 },
+                    zoom: 10,
+                    mapTypeControl: false,
+                    fullscreenControl: false,
+                    streetViewControl: false
+                });
+                
+                infoWindow = new google.maps.InfoWindow();
+                
+                // Initialize marker clusterer
+                markerCluster = new markerClusterer.MarkerClusterer({
+                    map: map,
+                    markers: [],
+                    gridSize: 60,
+                    maxZoom: 15,
+                    minimumClusterSize: 3
+                });
+                
+                // Initialize autocomplete
+                const input = document.getElementById('search-input');
+                autocomplete = new google.maps.places.Autocomplete(input, {
+                    types: ['geocode']
+                });
+                
+                autocomplete.addListener('place_changed', function() {
+                    const place = autocomplete.getPlace();
+                    if (place.geometry) {
+                        map.setCenter(place.geometry.location);
+                        map.setZoom(12);
+                        searchNearby(place.geometry.location.lat(), place.geometry.location.lng());
+                    }
+                });
+                
+                // Try to get user location
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        function(position) {
+                            const pos = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            map.setCenter(pos);
+                            searchNearby(pos.lat, pos.lng);
+                        },
+                        function() {
+                            // Use default location
+                            searchNearby(40.7128, -74.0060);
+                        }
+                    );
+                } else {
+                    // Use default location
+                    searchNearby(40.7128, -74.0060);
+                }
+                
+                showLoading(false);
+            } catch (error) {
+                console.error('Failed to initialize map:', error);
+                showError(true);
+                showLoading(false);
+            }
+        }
+        
+        // Load available tags
+        function loadTags() {
+            $.ajax({
+                url: TAGS_URL,
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    if (response && response.items) {
+                        availableTags = response.items.map(tag => ({
+                            id: parseInt(tag.tag_id, 10),
+                            name: tag.name,
+                            code: tag.code
+                        }));
+                        renderTags();
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Failed to load tags:', error);
+                }
+            });
+        }
+        
+        // Render tags
+        function renderTags() {
+            if (availableTags.length === 0) return;
+            
+            $('#tags-container').addClass('has-tags');
+            const wrapper = $('#tags-wrapper');
+            wrapper.empty();
+            
+            availableTags.forEach(tag => {
+                const chip = $('<div>')
+                    .addClass('tag-chip')
+                    .attr('data-tag-id', tag.id)
+                    .text(tag.name)
+                    .click(function() {
+                        toggleTag(tag.id);
+                    });
+                
+                if (selectedTags.includes(tag.id)) {
+                    chip.addClass('active');
+                }
+                
+                wrapper.append(chip);
+            });
+            
+            // Add global view button
+            const globalBtn = $('<button>')
+                .addClass('btn global-view-btn')
+                .attr('id', 'global-view-btn')
+                .text('Global View')
+                .click(toggleGlobalView);
+            
+            if (showGlobalView) {
+                globalBtn.addClass('active');
+            }
+            
+            wrapper.append(globalBtn);
+        }
+        
+        // Toggle tag selection
+        function toggleTag(tagId) {
+            const index = selectedTags.indexOf(tagId);
+            if (index > -1) {
+                selectedTags.splice(index, 1);
+            } else {
+                selectedTags.push(tagId);
+            }
+            
+            // Update UI
+            renderTags();
+            
+            // Refresh search
+            const center = map.getCenter();
+            searchNearby(center.lat(), center.lng());
+        }
+        
+        // Toggle global view
+        function toggleGlobalView() {
+            showGlobalView = !showGlobalView;
+            $('#global-view-btn').toggleClass('active');
+            
+            const center = map.getCenter();
+            searchNearby(center.lat(), center.lng());
+        }
+        
+        // Perform search
+        function performSearch() {
+            const query = $('#search-input').val();
+            if (!query) return;
+            
+            showLoading(true);
+            
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ address: query }, function(results, status) {
+                if (status === 'OK' && results[0]) {
+                    const location = results[0].geometry.location;
+                    map.setCenter(location);
+                    map.setZoom(12);
+                    searchNearby(location.lat(), location.lng());
+                } else {
+                    showLoading(false);
+                    alert('Location not found. Please try a different search.');
+                }
+            });
+        }
+        
+        // Use my location
+        function useMyLocation() {
+            showLoading(true);
+            
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        const pos = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        map.setCenter(pos);
+                        map.setZoom(12);
+                        searchNearby(pos.lat, pos.lng);
+                    },
+                    function() {
+                        showLoading(false);
+                        alert('Unable to get your location. Please enable location services.');
+                    }
+                );
+            } else {
+                showLoading(false);
+                alert('Your browser does not support geolocation.');
+            }
+        }
+        
+        // Search nearby locations
+        function searchNearby(lat, lng) {
+            showLoading(true);
+            
+            const searchData = {
+                lat: lat,
+                lng: lng,
+                radius: showGlobalView ? 0 : 50,
+                tags: selectedTags
+            };
+            
+            $.ajax({
+                url: SEARCH_URL,
+                type: 'POST',
+                data: JSON.stringify(searchData),
+                contentType: 'application/json',
+                dataType: 'json',
+                success: function(response) {
+                    processSearchResults(response, lat, lng);
+                    showLoading(false);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Search failed:', error);
+                    showLoading(false);
+                    alert('Search failed. Please try again.');
+                }
+            });
+        }
+        
+        // Process search results
+        function processSearchResults(results, centerLat, centerLng) {
+            // Clear existing markers
+            clearMarkers();
+            
+            // Calculate distances
+            results.forEach(location => {
+                if (location.latitude && location.longitude) {
+                    location.distance = calculateDistance(
+                        centerLat,
+                        centerLng,
+                        parseFloat(location.latitude),
+                        parseFloat(location.longitude)
+                    );
+                }
+            });
+            
+            // Sort by distance
+            results.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+            
+            locations = results;
+            
+            // Add markers to map
+            results.forEach((location, index) => {
+                if (location.latitude && location.longitude) {
+                    const marker = new google.maps.Marker({
+                        position: {
+                            lat: parseFloat(location.latitude),
+                            lng: parseFloat(location.longitude)
+                        },
+                        title: location.name,
+                        animation: google.maps.Animation.DROP
+                    });
+                    
+                    marker.addListener('click', function() {
+                        showInfoWindow(marker, location);
+                        selectLocation(index);
+                    });
+                    
+                    markers.push(marker);
+                }
+            });
+            
+            // Add markers to cluster
+            if (markerCluster) {
+                markerCluster.addMarkers(markers);
+            }
+            
+            // Update results panel
+            updateResults(results);
+            
+            // Fit map to show all markers
+            if (results.length > 0) {
+                fitMapToBounds();
+            }
+        }
+        
+        // Clear markers
+        function clearMarkers() {
+            if (markerCluster) {
+                markerCluster.clearMarkers();
+            }
+            markers.forEach(marker => {
+                marker.setMap(null);
+            });
+            markers = [];
+        }
+        
+        // Show info window
+        function showInfoWindow(marker, location) {
+            let content = '<div style="padding: 10px;">';
+            content += '<h4 style="margin: 0 0 8px 0;">' + location.name + '</h4>';
+            content += '<p style="margin: 0 0 5px 0;">' + location.address + '<br>';
+            content += location.city + ', ' + location.state + ' ' + location.zip + '</p>';
+            
+            if (location.phone) {
+                content += '<p style="margin: 5px 0;"><a href="tel:' + location.phone + '">' + location.phone + '</a></p>';
+            }
+            
+            if (location.website) {
+                content += '<p style="margin: 5px 0;"><a href="' + location.website + '" target="_blank">Visit Website</a></p>';
+            }
+            
+            content += '<p style="margin: 10px 0 0 0;"><a href="https://www.google.com/maps/dir/?api=1&destination=' + 
+                       encodeURIComponent(location.address + ', ' + location.city + ', ' + location.state + ' ' + location.zip) + 
+                       '" target="_blank">Get Directions</a></p>';
+            
+            content += '</div>';
+            
+            infoWindow.setContent(content);
+            infoWindow.open(map, marker);
+        }
+        
+        // Update results panel
+        function updateResults(results) {
+            const panel = $('#results-panel');
+            const list = $('#results-list');
+            const count = $('#results-count');
+            
+            count.text(results.length + ' results');
+            list.empty();
+            
+            if (results.length === 0) {
+                list.html('<p style="padding: 20px; text-align: center; color: #666;">No locations found. Try adjusting your search.</p>');
+            } else {
+                results.forEach((location, index) => {
+                    const item = $('<div>')
+                        .addClass('location-item')
+                        .attr('data-index', index)
+                        .click(function() {
+                            selectLocation(index);
+                        });
+                    
+                    if (index === selectedLocationIndex) {
+                        item.addClass('active');
+                    }
+                    
+                    let html = '<div class="location-name">' + location.name + '</div>';
+                    html += '<div class="location-address">';
+                    html += location.address + '<br>';
+                    html += location.city + ', ' + location.state + ' ' + location.zip;
+                    html += '</div>';
+                    html += '<div class="location-details">';
+                    
+                    if (location.phone) {
+                        html += '<a href="tel:' + location.phone + '">' + location.phone + '</a> | ';
+                    }
+                    
+                    if (location.website) {
+                        html += '<a href="' + location.website + '" target="_blank">Website</a> | ';
+                    }
+                    
+                    if (location.distance) {
+                        html += location.distance.toFixed(1) + ' miles';
+                    }
+                    
+                    html += '</div>';
+                    
+                    if (location.tags) {
+                        html += '<div class="location-tags">';
+                        location.tags.split(',').forEach(tag => {
+                            html += '<span class="location-tag">' + tag.trim() + '</span>';
+                        });
+                        html += '</div>';
+                    }
+                    
+                    item.html(html);
+                    list.append(item);
+                });
+            }
+            
+            panel.addClass('show');
+        }
+        
+        // Select location
+        function selectLocation(index) {
+            selectedLocationIndex = index;
+            
+            // Update UI
+            $('.location-item').removeClass('active');
+            $('.location-item[data-index="' + index + '"]').addClass('active');
+            
+            // Center on marker and show info window
+            const marker = markers[index];
+            const location = locations[index];
+            
+            if (marker && location) {
+                map.setCenter(marker.getPosition());
+                map.setZoom(16);
+                
+                // Wait for map to settle then show info window
+                setTimeout(function() {
+                    showInfoWindow(marker, location);
+                }, 300);
+            }
+        }
+        
+        // Close results panel
+        function closeResults() {
+            $('#results-panel').removeClass('show');
+        }
+        
+        // Fit map to bounds
+        function fitMapToBounds() {
+            const bounds = new google.maps.LatLngBounds();
+            
+            markers.forEach(marker => {
+                bounds.extend(marker.getPosition());
+            });
+            
+            map.fitBounds(bounds);
+            
+            // Don't zoom in too far for single marker
+            if (markers.length === 1) {
+                map.setZoom(Math.min(map.getZoom(), 15));
+            }
+        }
+        
+        // Calculate distance between two coordinates
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 3959; // Radius of Earth in miles
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+        
+        // Show/hide loading
+        function showLoading(show) {
+            $('#loading').toggleClass('show', show);
+        }
+        
+        // Show/hide error
+        function showError(show) {
+            $('#error-message').toggleClass('show', show);
+        }
+        
+        // Google Maps callback
+        window.initMapCallback = initMap;
+    </script>
+    
+    <!-- Google Maps API -->
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZypAt14mqlBCzbXOv1_xWq_A3rCu0SRI&libraries=places&callback=initMapCallback">
+    </script>
+    
+    <!-- Marker Clusterer -->
+    <script src="https://unpkg.com/@googlemaps/markerclusterer@2.0.0/dist/index.min.js"></script>
+</body>
+</html>

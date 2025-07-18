@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer Locator Map</title>
+    
+    <!-- RequireJS -->
+    <script src="/pub/static/frontend/Magento/luma/en_US/requirejs/require.js"></script>
+    
+    <!-- Magento RequireJS Configuration -->
+    <script>
+        // Basic RequireJS configuration
+        requirejs.config({
+            baseUrl: '/pub/static/frontend/Magento/luma/en_US/',
+            paths: {
+                'jquery': 'jquery',
+                'ko': 'knockoutjs/knockout',
+                'underscore': 'underscore',
+                'mage/url': 'Magento_Ui/js/lib/core/url',
+                'mage/storage': 'Magento_Ui/js/model/messages',
+                'mage/translate': 'Magento_Ui/js/lib/core/translate',
+                'uiComponent': 'Magento_Ui/js/lib/core/collection',
+                'Magento_Ui/js/core/app': 'Magento_Ui/js/core/app',
+                'Zhik_DealerLocator/js/map/dealer-map': 'Zhik_DealerLocator/js/map/dealer-map'
+            },
+            shim: {
+                'underscore': {
+                    exports: '_'
+                }
+            }
+        });
+        
+        // Define simplified versions of required Magento modules
+        define('mage/url', [], function() {
+            return {
+                build: function(path) {
+                    return '/' + path.replace(/^\/+/, '');
+                }
+            };
+        });
+        
+        define('mage/storage', ['jquery'], function($) {
+            return {
+                post: function(url, data) {
+                    return $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: data,
+                        contentType: 'application/json',
+                        dataType: 'json'
+                    });
+                }
+            };
+        });
+        
+        define('mage/translate', [], function() {
+            return function(text) {
+                return text;
+            };
+        });
+        
+        define('uiComponent', ['ko'], function(ko) {
+            return function() {
+                var Component = function() {
+                    this.defaults = {};
+                };
+                
+                Component.prototype.extend = function(config) {
+                    var Child = function(options) {
+                        // Merge options with defaults
+                        for (var key in config.defaults) {
+                            this[key] = config.defaults[key];
+                        }
+                        for (var key in options) {
+                            this[key] = options[key];
+                        }
+                        
+                        // Call initialize if it exists
+                        if (config.initialize) {
+                            config.initialize.call(this);
+                        }
+                    };
+                    
+                    // Copy methods
+                    for (var key in config) {
+                        if (key !== 'defaults') {
+                            Child.prototype[key] = config[key];
+                        }
+                    }
+                    
+                    Child.prototype._super = function() {};
+                    
+                    return Child;
+                };
+                
+                return Component;
+            };
+        });
+    </script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+        
+        /* Container for the entire app */
+        .dealer-map-standalone {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #f5f5f5;
+        }
+        
+        /* Map container fills the entire space */
+        .dealer-map-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            flex: 1;
+        }
+        
+        #dealer-map-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Search overlay - positioned over the map */
+        .map-overlay-controls {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        .map-overlay-controls > * {
+            pointer-events: auto;
+        }
+        
+        .search-overlay {
+            background: white;
+            padding: 15px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px 0 0 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .search-input:focus {
+            border-color: #007cba;
+        }
+        
+        .search-btn, .location-btn {
+            padding: 10px 15px;
+            background: #007cba;
+            color: white;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        
+        .search-btn:hover, .location-btn:hover {
+            background: #005a87;
+        }
+        
+        .search-btn {
+            border-radius: 0 4px 4px 0;
+        }
+        
+        .location-btn {
+            margin-left: 10px;
+            border-radius: 4px;
+        }
+        
+        /* Tag filters */
+        .filter-overlay {
+            background: white;
+            padding: 10px 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-top: 1px;
+        }
+        
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .tag-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        
+        .tag-chip:hover {
+            background: #e0e0e0;
+        }
+        
+        .tag-chip.active {
+            background: #007cba;
+            color: white;
+        }
+        
+        .tag-checkbox {
+            display: none;
+        }
+        
+        .global-toggle {
+            margin-left: auto;
+            padding: 6px 12px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .global-toggle:hover {
+            background: #e0e0e0;
+        }
+        
+        .global-toggle.active {
+            background: #28a745;
+            color: white;
+        }
+        
+        /* Results panel - slides up from bottom */
+        .dealer-results-section {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            max-height: 50%;
+            overflow-y: auto;
+            box-shadow: 0 -2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            z-index: 999;
+        }
+        
+        .dealer-results-section:empty {
+            transform: translateY(100%);
+        }
+        
+        .results-container {
+            padding: 20px;
+        }
+        
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .results-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .result-count {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .dealer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+        
+        .dealer-card {
+            padding: 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .dealer-card:hover {
+            border-color: #007cba;
+            box-shadow: 0 2px 8px rgba(0,123,186,0.1);
+        }
+        
+        .dealer-card.active {
+            border-color: #007cba;
+            background: #f0f7ff;
+        }
+        
+        .dealer-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        
+        .dealer-address {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+        
+        .dealer-phone, .dealer-website, .dealer-distance {
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .dealer-phone a, .dealer-website a {
+            color: #007cba;
+            text-decoration: none;
+        }
+        
+        .dealer-phone a:hover, .dealer-website a:hover {
+            text-decoration: underline;
+        }
+        
+        .dealer-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        
+        .tag-label {
+            font-size: 11px;
+            padding: 3px 8px;
+            background: #e0e0e0;
+            border-radius: 12px;
+            color: #555;
+        }
+        
+        .dealer-actions {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #eee;
+        }
+        
+        .action-directions {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #007cba;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s;
+        }
+        
+        .action-directions:hover {
+            background: #005a87;
+        }
+        
+        /* Loading indicator */
+        .map-loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1001;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #007cba;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Error message */
+        .map-error-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+        }
+        
+        .map-error-message {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+        }
+        
+        .error-icon {
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        
+        /* No results message */
+        .no-results-section {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .no-results-message h3 {
+            font-size: 18px;
+            margin: 15px 0 10px;
+            color: #333;
+        }
+        
+        .no-results-message p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        /* Icons */
+        .icon {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .search-box {
+                flex-wrap: wrap;
+            }
+            
+            .search-input {
+                width: 100%;
+                border-radius: 4px;
+                margin-bottom: 10px;
+            }
+            
+            .search-btn {
+                border-radius: 4px;
+                flex: 1;
+            }
+            
+            .location-btn {
+                flex: 1;
+            }
+            
+            .dealer-results-section {
+                max-height: 70%;
+            }
+            
+            .dealer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dealer-map-standalone" data-bind="scope: 'dealer-map'">
+        <!-- ko template: getTemplate() --><!-- /ko -->
+    </div>
+    
+    <!-- Include Google Maps API -->
+    <script>
+        // Google Maps API callback
+        window.initMapCallback = function() {
+            console.log('Google Maps API loaded');
+            window.google = window.google || {};
+        };
+    </script>
+    <script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDZypAt14mqlBCzbXOv1_xWq_A3rCu0SRI&libraries=places&callback=initMapCallback">
+    </script>
+    
+    <!-- Marker Clusterer -->
+    <script src="https://unpkg.com/@googlemaps/markerclusterer@2.0.0/dist/index.min.js"></script>
+    
+    <!-- Initialize the map component -->
+    <script>
+        require(['jquery', 'ko', 'Magento_Ui/js/core/app'], function($, ko, app) {
+            // Wait for DOM ready
+            $(document).ready(function() {
+                // Initialize the dealer map component
+                app({
+                    "*": {
+                        "Magento_Ui/js/core/app": {
+                            "components": {
+                                "dealer-map": {
+                                    "component": "Zhik_DealerLocator/js/map/dealer-map",
+                                    "config": {
+                                        "template": "Zhik_DealerLocator/map/dealer-map",
+                                        "apiKey": "AIzaSyDZypAt14mqlBCzbXOv1_xWq_A3rCu0SRI",
+                                        "defaultLat": 40.7128,
+                                        "defaultLng": -74.006,
+                                        "defaultZoom": 10,
+                                        "searchUrl": "/dealerlocator/location/search/",
+                                        "detailsUrl": "/dealerlocator/location/details/",
+                                        "geocodeUrl": "/dealerlocator/map/geocode/",
+                                        "defaultRadius": 50,
+                                        "mapStyle": [],
+                                        "clusterEnabled": true,
+                                        "clusterGridSize": 60,
+                                        "clusterMinSize": 3
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Apply Knockout bindings
+                ko.applyBindings();
+            });
+        });
+    </script>
+    
+    <!-- Define the template inline since we don't have access to Magento's template system -->
+    <script type="text/html" id="Zhik_DealerLocator/map/dealer-map">
+        <div class="dealer-map-container">
+            <!-- Map Canvas -->
+            <div id="dealer-map-canvas" class="map-canvas"></div>
+            
+            <!-- Overlay Search Container -->
+            <div class="map-overlay-controls">
+                <!-- Search Bar -->
+                <div class="search-overlay">
+                    <div class="search-box">
+                        <input type="text" 
+                               id="map-search-input" 
+                               class="search-input" 
+                               placeholder="Search city, ZIP code, or address..."
+                               data-bind="value: searchQuery, valueUpdate: 'keyup', event: { keypress: searchOnEnter }">
+                        <button type="button" 
+                                class="search-btn"
+                                data-bind="click: performSearch"
+                                title="Search">
+                            <svg class="icon icon-search" width="20" height="20" viewBox="0 0 20 20">
+                                <path d="M19.7,18.3l-5.1-5.1C15.5,11.9,16,10.5,16,9c0-3.9-3.1-7-7-7S2,5.1,2,9s3.1,7,7,7c1.5,0,2.9-0.5,4.1-1.3l5.1,5.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3C20.1,19.3,20.1,18.7,19.7,18.3z M4,9c0-2.8,2.2-5,5-5s5,2.2,5,5s-2.2,5-5,5S4,11.8,4,9z"/>
+                            </svg>
+                        </button>
+                        <button type="button" 
+                                class="location-btn"
+                                data-bind="click: useMyLocation"
+                                title="Use my location">
+                            <svg class="icon icon-location" width="20" height="20" viewBox="0 0 20 20">
+                                <path d="M10,2C6.1,2,3,5.1,3,9c0,5.2,7,11,7,11s7-5.8,7-11C17,5.1,13.9,2,10,2z M10,11.5c-1.4,0-2.5-1.1-2.5-2.5S8.6,6.5,10,6.5s2.5,1.1,2.5,2.5S11.4,11.5,10,11.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Tag Filters -->
+                <div class="filter-overlay" data-bind="visible: availableTags().length > 0">
+                    <div class="tag-filter-container">
+                        <!-- ko foreach: availableTags -->
+                        <label class="tag-chip" data-bind="css: { 'active': $parent.selectedTags().indexOf(id) >= 0 }">
+                            <input type="checkbox" 
+                                   class="tag-checkbox"
+                                   data-bind="checkedValue: id, checked: $parent.selectedTags">
+                            <span data-bind="text: name"></span>
+                        </label>
+                        <!-- /ko -->
+                        
+                        <button type="button" 
+                                class="global-toggle"
+                                data-bind="click: toggleGlobalView, css: { 'active': showGlobalView() }"
+                                title="Toggle global view">
+                            <svg class="icon icon-globe" width="16" height="16" viewBox="0 0 16 16">
+                                <path d="M8,0C3.6,0,0,3.6,0,8s3.6,8,8,8s8-3.6,8-8S12.4,0,8,0z M8,14c-3.3,0-6-2.7-6-6s2.7-6,6-6s6,2.7,6,6S11.3,14,8,14z"/>
+                            </svg>
+                            <span>Global View</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Loading Indicator -->
+            <div class="map-loading" data-bind="visible: isLoading">
+                <div class="loading-spinner">
+                    <div class="spinner"></div>
+                    <span>Searching for dealers...</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location List Below Map -->
+        <div class="dealer-results-section" data-bind="visible: searchResults().length > 0">
+            <div class="results-container">
+                <div class="results-header">
+                    <h2>Dealer Locations</h2>
+                    <span class="result-count" data-bind="text: searchResults().length + ' locations found'"></span>
+                </div>
+                
+                <div class="dealer-grid" data-bind="foreach: searchResults">
+                    <div class="dealer-card" data-bind="click: $parent.selectLocation.bind($parent, $index()), css: { 'active': $parent.selectedLocationIndex() === $index() }">
+                        <div class="dealer-main">
+                            <h3 class="dealer-name" data-bind="text: name"></h3>
+                            <div class="dealer-address">
+                                <span data-bind="text: address"></span><br>
+                                <span data-bind="text: city + ', ' + state + ' ' + zip"></span>
+                            </div>
+                            <!-- ko if: phone -->
+                            <div class="dealer-phone">
+                                <svg class="icon icon-phone" width="14" height="14" viewBox="0 0 14 14">
+                                    <path d="M13.7,11.1l-2.1-2.1c-0.4-0.4-1.1-0.4-1.5,0l-1,1c-0.1,0-0.3-0.1-0.5-0.2c-0.7-0.4-1.6-1-2.4-1.8C5.4,7.2,4.8,6.3,4.4,5.6C4.3,5.4,4.2,5.2,4.2,5.1l0.7-0.7l0.3-0.3c0.4-0.4,0.4-1.1,0-1.5L3.1,0.5C2.7,0.1,2,0.1,1.6,0.5L0.9,1.2l0,0C0.6,1.5,0.3,1.9,0.2,2.4C0,2.8,0,3.2,0,3.7c0.1,1.3,0.6,2.5,1.7,3.9c1.5,1.9,3.3,3.4,5.4,4.4c1,0.5,2.3,1,3.7,1.1c0.1,0,0.1,0,0.2,0c0.6,0,1.1-0.2,1.5-0.6c0,0,0,0,0,0l0.7-0.7C14.1,12.2,14.1,11.5,13.7,11.1z"/>
+                                </svg>
+                                <a data-bind="attr: { href: 'tel:' + phone }, text: phone"></a>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: website -->
+                            <div class="dealer-website">
+                                <svg class="icon icon-web" width="14" height="14" viewBox="0 0 14 14">
+                                    <path d="M7,0C3.1,0,0,3.1,0,7s3.1,7,7,7s7-3.1,7-7S10.9,0,7,0z M12.2,4.3h-2.5c-0.2-1-0.5-1.9-1-2.6C10.2,2,11.5,3,12.2,4.3z M7,1.4c0.6,0.8,1,1.7,1.3,2.8H5.7C6,3.1,6.4,2.2,7,1.4z M1.6,8.4C1.5,7.9,1.4,7.5,1.4,7s0.1-0.9,0.2-1.4h2.9C4.4,6.1,4.4,6.5,4.4,7s0,0.9,0.1,1.4H1.6z M1.8,9.7h2.5c0.2,1,0.5,1.9,1,2.6C3.8,12,2.5,11,1.8,9.7z M4.3,4.3H1.8c0.7-1.3,2-2.3,3.5-2.6C4.8,2.4,4.5,3.3,4.3,4.3z M7,12.6c-0.6-0.8-1-1.7-1.3-2.8h2.6C7.9,10.9,7.6,11.8,7,12.6z M8.6,8.4H5.4C5.3,7.9,5.3,7.5,5.3,7s0-0.9,0.1-1.4h3.3C8.7,6.1,8.7,6.5,8.7,7S8.7,7.9,8.6,8.4z M8.7,12.3c0.5-0.7,0.8-1.6,1-2.6h2.5C11.5,11,10.2,12,8.7,12.3z M9.5,8.4c0.1-0.5,0.1-0.9,0.1-1.4s0-0.9-0.1-1.4h2.9c0.1,0.5,0.2,0.9,0.2,1.4s-0.1,0.9-0.2,1.4H9.5z"/>
+                                </svg>
+                                <a data-bind="attr: { href: website, target: '_blank' }, text: 'Visit Website'"></a>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: distance -->
+                            <div class="dealer-distance">
+                                <svg class="icon icon-distance" width="14" height="14" viewBox="0 0 14 14">
+                                    <path d="M7,0C4.2,0,2,2.2,2,5c0,3.5,5,9,5,9s5-5.5,5-9C12,2.2,9.8,0,7,0z M7,7C5.9,7,5,6.1,5,5s0.9-2,2-2s2,0.9,2,2S8.1,7,7,7z"/>
+                                </svg>
+                                <span data-bind="text: distance.toFixed(1) + ' miles'"></span>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: tags -->
+                            <div class="dealer-tags">
+                                <!-- ko foreach: tags.split(',') -->
+                                <span class="tag-label" data-bind="text: $data.trim()"></span>
+                                <!-- /ko -->
+                            </div>
+                            <!-- /ko -->
+                        </div>
+                        <div class="dealer-actions">
+                            <button type="button" 
+                                    class="action-directions"
+                                    data-bind="click: $parent.getDirections.bind($parent, $data), clickBubble: false">
+                                <svg class="icon icon-directions" width="16" height="16" viewBox="0 0 16 16">
+                                    <path d="M15.8,0.1c-0.1-0.1-0.3-0.1-0.5,0L0.2,7.6C0.1,7.7,0,7.8,0,8s0.1,0.3,0.2,0.4l3.9,2.3l2.3,3.9C6.5,14.9,6.7,15,7,15c0,0,0,0,0,0c0.2,0,0.4-0.1,0.5-0.3l7.5-15.1C16,9.4,16,9.2,15.8,0.1z M6.8,13.2l-1.8-3l5.7-5.7c0.2-0.2,0.2-0.5,0-0.7s-0.5-0.2-0.7,0L4.3,9.5l-3-1.8L14.3,1.7L6.8,13.2z"/>
+                                </svg>
+                                <span>Get Directions</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Results Message -->
+        <div class="no-results-section" data-bind="visible: !isLoading() && searchResults().length === 0 && hasSearched()">
+            <div class="no-results-message">
+                <svg class="icon icon-location-off" width="48" height="48" viewBox="0 0 48 48">
+                    <path d="M24,4C16.3,4,10,10.3,10,18c0,10.5,14,26,14,26s14-15.5,14-26C38,10.3,31.7,4,24,4z M24,23c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S26.8,23,24,23z" opacity="0.3"/>
+                    <path d="M40.5,40.5L7.5,7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+                </svg>
+                <h3>No dealers found</h3>
+                <p>Try adjusting your search location or expanding the search area.</p>
+            </div>
+        </div>
+    </script>
+</body>
+</html>

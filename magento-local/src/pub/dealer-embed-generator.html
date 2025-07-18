@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dealer Locator Embed Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 8px;
+        }
+        
+        .code-output {
+            background: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .preview-container {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 30px;
+        }
+        
+        .preview-wrapper {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        
+        button {
+            background: #007cba;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #005a87;
+        }
+        
+        .copy-success {
+            color: #4caf50;
+            font-size: 14px;
+            margin-left: 10px;
+            display: none;
+        }
+        
+        .note {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px 15px;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dealer Locator Embed Code Generator</h1>
+        
+        <div class="note">
+            Generate custom embed codes for the dealer locator map. Configure the options below and copy the generated code to embed on any website.
+        </div>
+        
+        <form id="embedForm">
+            <div class="form-group">
+                <label for="baseUrl">Base URL:</label>
+                <input type="text" id="baseUrl" value="https://yourmagento.com" placeholder="https://yourmagento.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="width">Width:</label>
+                <select id="width">
+                    <option value="100%">100% (Responsive)</option>
+                    <option value="800px">800px</option>
+                    <option value="1000px">1000px</option>
+                    <option value="1200px">1200px</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="text" id="customWidth" style="display:none; margin-top:10px;" placeholder="Enter custom width">
+            </div>
+            
+            <div class="form-group">
+                <label for="height">Height:</label>
+                <select id="height">
+                    <option value="600px">600px</option>
+                    <option value="700px">700px</option>
+                    <option value="800px">800px</option>
+                    <option value="900px">900px</option>
+                    <option value="100vh">Full Viewport Height</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <input type="text" id="customHeight" style="display:none; margin-top:10px;" placeholder="Enter custom height">
+            </div>
+            
+            <div class="form-group">
+                <label>Additional Options:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="noBorder" checked>
+                    <label for="noBorder" style="font-weight: normal; margin-bottom: 0;">Remove border</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="allowFullscreen" checked>
+                    <label for="allowFullscreen" style="font-weight: normal; margin-bottom: 0;">Allow fullscreen</label>
+                </div>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="responsive">
+                    <label for="responsive" style="font-weight: normal; margin-bottom: 0;">Add responsive wrapper</label>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title (for accessibility):</label>
+                <input type="text" id="title" value="Dealer Locator Map" placeholder="Dealer Locator Map">
+            </div>
+        </form>
+        
+        <button onclick="generateCode()">Generate Embed Code</button>
+        <button onclick="copyCode()">Copy to Clipboard</button>
+        <span class="copy-success">Copied!</span>
+        
+        <div class="code-output" id="embedCode"></div>
+        
+        <div class="preview-container">
+            <h2>Preview:</h2>
+            <div class="preview-wrapper" id="preview"></div>
+        </div>
+    </div>
+    
+    <script>
+        document.getElementById('width').addEventListener('change', function() {
+            const customWidthInput = document.getElementById('customWidth');
+            customWidthInput.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        document.getElementById('height').addEventListener('change', function() {
+            const customHeightInput = document.getElementById('customHeight');
+            customHeightInput.style.display = this.value === 'custom' ? 'block' : 'none';
+        });
+        
+        function generateCode() {
+            const baseUrl = document.getElementById('baseUrl').value || 'https://yourmagento.com';
+            const widthSelect = document.getElementById('width').value;
+            const heightSelect = document.getElementById('height').value;
+            const customWidth = document.getElementById('customWidth').value;
+            const customHeight = document.getElementById('customHeight').value;
+            const noBorder = document.getElementById('noBorder').checked;
+            const allowFullscreen = document.getElementById('allowFullscreen').checked;
+            const responsive = document.getElementById('responsive').checked;
+            const title = document.getElementById('title').value || 'Dealer Locator Map';
+            
+            const width = widthSelect === 'custom' ? customWidth : widthSelect;
+            const height = heightSelect === 'custom' ? customHeight : heightSelect;
+            
+            let code = '';
+            
+            if (responsive && width === '100%') {
+                // Generate responsive wrapper code
+                code = `<!-- Responsive Dealer Locator Embed -->
+<style>
+.dealer-locator-wrapper {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-bottom: 75%; /* 4:3 Aspect Ratio - adjust as needed */
+}
+
+.dealer-locator-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+</style>
+
+<div class="dealer-locator-wrapper">
+    <iframe 
+        src="${baseUrl}/dealerlocator/map/index/"
+        title="${escapeHtml(title)}"${allowFullscreen ? '\n        allowfullscreen' : ''}>
+    </iframe>
+</div>`;
+            } else {
+                // Generate standard iframe code
+                let style = [];
+                if (noBorder) style.push('border: none');
+                
+                code = `<iframe 
+    src="${baseUrl}/dealerlocator/map/index/"
+    title="${escapeHtml(title)}"
+    width="${width}"
+    height="${height}"${style.length > 0 ? '\n    style="' + style.join('; ') + '"' : ''}${allowFullscreen ? '\n    allowfullscreen' : ''}>
+</iframe>`;
+            }
+            
+            document.getElementById('embedCode').textContent = code;
+            updatePreview(code);
+        }
+        
+        function updatePreview(code) {
+            const previewDiv = document.getElementById('preview');
+            // For preview, replace the base URL with current domain
+            const previewCode = code.replace(
+                /https:\/\/yourmagento\.com/g, 
+                window.location.origin
+            );
+            previewDiv.innerHTML = previewCode;
+        }
+        
+        function copyCode() {
+            const codeElement = document.getElementById('embedCode');
+            const code = codeElement.textContent;
+            
+            if (!code) {
+                alert('Please generate the embed code first!');
+                return;
+            }
+            
+            // Create temporary textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            textarea.style.position = 'absolute';
+            textarea.style.left = '-9999px';
+            document.body.appendChild(textarea);
+            
+            // Select and copy
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                // Show success message
+                const successMsg = document.querySelector('.copy-success');
+                successMsg.style.display = 'inline';
+                setTimeout(() => {
+                    successMsg.style.display = 'none';
+                }, 2000);
+            } catch (err) {
+                alert('Failed to copy to clipboard. Please select and copy manually.');
+            }
+            
+            // Remove temporary textarea
+            document.body.removeChild(textarea);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Generate initial code on load
+        window.addEventListener('DOMContentLoaded', function() {
+            // Set base URL to current domain
+            document.getElementById('baseUrl').value = window.location.origin;
+            generateCode();
+        });
+    </script>
+</body>
+</html>
