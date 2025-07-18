@@ -44,7 +44,9 @@
             position: absolute;
             top: 16px;
             left: 16px;
-            right: 16px;
+            width: 20%;
+            min-width: 250px;
+            max-width: 400px;
             z-index: 1000;
             background: transparent;
             padding: 0;
@@ -86,11 +88,8 @@
         }
         
         .tags-container {
-            display: none;
-        }
-        
-        .tags-container.has-tags {
             display: block;
+            margin-bottom: 12px;
         }
         
         .tags-wrapper {
@@ -129,7 +128,29 @@
         }
         
         .global-view-btn {
-            display: none; /* Hide global view button per design */
+            padding: 10px 20px;
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 40px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #333;
+            font-weight: 400;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            white-space: nowrap;
+        }
+        
+        .global-view-btn:hover {
+            background: #f8f8f8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+        
+        .global-view-btn.active {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
         }
         
         .results-panel {
@@ -297,8 +318,9 @@
         @media (max-width: 768px) {
             .map-controls {
                 left: 8px;
-                right: 8px;
                 top: 8px;
+                width: 25%;
+                min-width: 200px;
             }
             
             #search-input {
@@ -336,6 +358,12 @@
                 <div class="tags-wrapper" id="tags-wrapper">
                     <!-- Tags will be inserted here -->
                 </div>
+            </div>
+            
+            <div style="margin-top: 12px;">
+                <button class="global-view-btn" id="global-view-btn" onclick="toggleGlobalView()">
+                    Show All Locations
+                </button>
             </div>
         </div>
         
@@ -531,7 +559,9 @@
         // Toggle global view
         function toggleGlobalView() {
             showGlobalView = !showGlobalView;
-            $('#global-view-btn').toggleClass('active');
+            const btn = $('#global-view-btn');
+            btn.toggleClass('active');
+            btn.text(showGlobalView ? 'Show Nearby Only' : 'Show All Locations');
             
             const center = map.getCenter();
             searchNearby(center.lat(), center.lng());
