@@ -27,6 +27,10 @@
             <email>
                 <send_customer_notifications>1</send_customer_notifications>
                 <send_admin_notifications>1</send_admin_notifications>
+                <admin_new_submission_template>dealerlocator_email_admin_new_submission</admin_new_submission_template>
+                <customer_submission_confirmation_template>dealerlocator_email_customer_submission_confirmation</customer_submission_confirmation_template>
+                <customer_location_approved_template>dealerlocator_email_customer_location_approved</customer_location_approved_template>
+                <customer_location_rejected_template>dealerlocator_email_customer_location_rejected</customer_location_rejected_template>
             </email>
             <fields>
                 <hours_enabled>1</hours_enabled>

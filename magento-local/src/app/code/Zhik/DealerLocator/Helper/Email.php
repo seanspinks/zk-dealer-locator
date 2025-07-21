@@ -32,6 +32,11 @@ class Email extends AbstractHelper
     const XML_PATH_SEND_ADMIN_NOTIFICATIONS = 'dealerlocator/email/send_admin_notifications';
     const XML_PATH_ADMIN_EMAIL = 'dealerlocator/email/admin_email';
     
+    const XML_PATH_ADMIN_NEW_SUBMISSION_TEMPLATE = 'dealerlocator/email/admin_new_submission_template';
+    const XML_PATH_CUSTOMER_SUBMISSION_CONFIRMATION_TEMPLATE = 'dealerlocator/email/customer_submission_confirmation_template';
+    const XML_PATH_CUSTOMER_LOCATION_APPROVED_TEMPLATE = 'dealerlocator/email/customer_location_approved_template';
+    const XML_PATH_CUSTOMER_LOCATION_REJECTED_TEMPLATE = 'dealerlocator/email/customer_location_rejected_template';
+    
     const EMAIL_TEMPLATE_SUBMISSION_CONFIRMATION = 'dealerlocator_email_customer_submission_confirmation';
     const EMAIL_TEMPLATE_LOCATION_APPROVED = 'dealerlocator_email_customer_location_approved';
     const EMAIL_TEMPLATE_LOCATION_REJECTED = 'dealerlocator_email_customer_location_rejected';
@@ -116,8 +121,14 @@ class Email extends AbstractHelper
                 'store' => $store
             ];
 
+            $templateId = $this->scopeConfig->getValue(
+                self::XML_PATH_CUSTOMER_SUBMISSION_CONFIRMATION_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $store->getId()
+            ) ?: self::EMAIL_TEMPLATE_SUBMISSION_CONFIRMATION;
+            
             $this->sendEmail(
-                self::EMAIL_TEMPLATE_SUBMISSION_CONFIRMATION,
+                $templateId,
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
@@ -150,8 +161,14 @@ class Email extends AbstractHelper
                 'store' => $store
             ];
 
+            $templateId = $this->scopeConfig->getValue(
+                self::XML_PATH_CUSTOMER_LOCATION_APPROVED_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $store->getId()
+            ) ?: self::EMAIL_TEMPLATE_LOCATION_APPROVED;
+            
             $this->sendEmail(
-                self::EMAIL_TEMPLATE_LOCATION_APPROVED,
+                $templateId,
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
@@ -184,8 +201,14 @@ class Email extends AbstractHelper
                 'store' => $store
             ];
 
+            $templateId = $this->scopeConfig->getValue(
+                self::XML_PATH_CUSTOMER_LOCATION_REJECTED_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $store->getId()
+            ) ?: self::EMAIL_TEMPLATE_LOCATION_REJECTED;
+            
             $this->sendEmail(
-                self::EMAIL_TEMPLATE_LOCATION_REJECTED,
+                $templateId,
                 $customer->getEmail(),
                 $customer->getFirstname() . ' ' . $customer->getLastname(),
                 $templateVars,
@@ -227,8 +250,14 @@ class Email extends AbstractHelper
                 )
             ];
 
+            $templateId = $this->scopeConfig->getValue(
+                self::XML_PATH_ADMIN_NEW_SUBMISSION_TEMPLATE,
+                ScopeInterface::SCOPE_STORE,
+                $store->getId()
+            ) ?: self::EMAIL_TEMPLATE_ADMIN_NEW_SUBMISSION;
+            
             $this->sendEmail(
-                self::EMAIL_TEMPLATE_ADMIN_NEW_SUBMISSION,
+                $templateId,
                 $adminEmail,
                 null,
                 $templateVars,

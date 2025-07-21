@@ -104,6 +104,38 @@
                         <field id="send_admin_notifications">1</field>
                     </depends>
                 </field>
+                <field id="admin_new_submission_template" translate="label comment" type="select" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Admin New Submission Template</label>
+                    <comment>Email template for notifying admin about new dealer location submissions</comment>
+                    <source_model>Zhik\DealerLocator\Model\Config\Source\EmailTemplate</source_model>
+                    <depends>
+                        <field id="send_admin_notifications">1</field>
+                    </depends>
+                </field>
+                <field id="customer_submission_confirmation_template" translate="label comment" type="select" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Submission Confirmation Template</label>
+                    <comment>Email template for confirming dealer location submission to customer</comment>
+                    <source_model>Zhik\DealerLocator\Model\Config\Source\EmailTemplate</source_model>
+                    <depends>
+                        <field id="send_customer_notifications">1</field>
+                    </depends>
+                </field>
+                <field id="customer_location_approved_template" translate="label comment" type="select" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Location Approved Template</label>
+                    <comment>Email template for notifying customer when their location is approved</comment>
+                    <source_model>Zhik\DealerLocator\Model\Config\Source\EmailTemplate</source_model>
+                    <depends>
+                        <field id="send_customer_notifications">1</field>
+                    </depends>
+                </field>
+                <field id="customer_location_rejected_template" translate="label comment" type="select" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Customer Location Rejected Template</label>
+                    <comment>Email template for notifying customer when their location is rejected</comment>
+                    <source_model>Zhik\DealerLocator\Model\Config\Source\EmailTemplate</source_model>
+                    <depends>
+                        <field id="send_customer_notifications">1</field>
+                    </depends>
+                </field>
             </group>
             <group id="fields" translate="label" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Field Configuration</label>
