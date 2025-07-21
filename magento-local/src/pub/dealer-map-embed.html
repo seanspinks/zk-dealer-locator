@@ -810,13 +810,56 @@
                 
                 infoWindow = new google.maps.InfoWindow();
                 
+                // Create custom renderer for white clusters
+                var customRenderer = {
+                    render: function(cluster, stats) {
+                        var count = cluster.count;
+                        var position = cluster.position;
+                        
+                        // Determine which style to use based on count (reduced by 20%)
+                        var size = 42;  // was 53
+                        var textSize = 10;
+                        if (count >= 10) {
+                            size = 45;  // was 56
+                            textSize = 11;
+                        }
+                        if (count >= 100) {
+                            size = 53;  // was 66
+                            textSize = 12;
+                        }
+                        
+                        // Create white circle with gradient (solid center to almost completely transparent edge)
+                        var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                                 '<defs>' +
+                                 '<radialGradient id="grad' + count + '">' +
+                                 '<stop offset="0%" style="stop-color:rgba(255,255,255,1)" />' +
+                                 '<stop offset="40%" style="stop-color:rgba(255,255,255,0.9)" />' +
+                                 '<stop offset="70%" style="stop-color:rgba(255,255,255,0.4)" />' +
+                                 '<stop offset="90%" style="stop-color:rgba(255,255,255,0.1)" />' +
+                                 '<stop offset="100%" style="stop-color:rgba(255,255,255,0)" />' +
+                                 '</radialGradient>' +
+                                 '</defs>' +
+                                 '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + (size/2) + '" fill="url(#grad' + count + ')" />' +
+                                 '<text x="' + (size/2) + '" y="' + (size/2 + textSize/3) + '" font-family="Arial" font-size="' + textSize + '" font-weight="bold" text-anchor="middle" fill="black">' + count + '</text>' +
+                                 '</svg>';
+                        
+                        return new google.maps.Marker({
+                            position: position,
+                            icon: {
+                                url: 'data:image/svg+xml;base64,' + btoa(svg),
+                                scaledSize: new google.maps.Size(size, size),
+                                anchor: new google.maps.Point(size/2, size/2)
+                            },
+                            zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count
+                        });
+                    }
+                };
+                
                 // Initialize marker clusterer
                 markerCluster = new markerClusterer.MarkerClusterer({
                     map: map,
                     markers: [],
-                    gridSize: 60,
-                    maxZoom: 15,
-                    minimumClusterSize: 3
+                    renderer: customRenderer
                 });
                 
                 // Initialize autocomplete
@@ -1054,8 +1097,8 @@
                         animation: google.maps.Animation.DROP,
                         icon: {
                             url: 'map-icon.png',
-                            scaledSize: new google.maps.Size(30, 30),
-                            anchor: new google.maps.Point(15, 30)
+                            scaledSize: new google.maps.Size(32, 42),
+                            anchor: new google.maps.Point(16, 42)
                         }
                     });
                     

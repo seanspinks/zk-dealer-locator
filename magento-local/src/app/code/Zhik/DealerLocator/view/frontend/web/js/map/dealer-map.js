@@ -41,35 +41,7 @@ define([
             geocodeUrl: '',
             defaultRadius: 50,
             mapStyle: [],
-            clusterEnabled: true,
-            clusterGridSize: 60,
-            clusterMinSize: 3,
-            clusterOptions: {
-                gridSize: 60,
-                maxZoom: 15,
-                minimumClusterSize: 3,
-                zoomOnClick: true,
-                averageCenter: true,
-                styles: [{
-                    url: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m1.png',
-                    height: 53,
-                    width: 53,
-                    textColor: '#ffffff',
-                    textSize: 11
-                }, {
-                    url: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m2.png',
-                    height: 56,
-                    width: 56,
-                    textColor: '#ffffff',
-                    textSize: 12
-                }, {
-                    url: 'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m3.png',
-                    height: 66,
-                    width: 66,
-                    textColor: '#ffffff',
-                    textSize: 13
-                }]
-            }
+            clusterEnabled: true
         },
 
         /**
@@ -111,12 +83,6 @@ define([
             // Apply cluster configuration from admin
             if (typeof this.clusterEnabled !== 'undefined') {
                 this.clusterEnabled = !!this.clusterEnabled;
-            }
-            if (this.clusterGridSize) {
-                this.clusterOptions.gridSize = parseInt(this.clusterGridSize);
-            }
-            if (this.clusterMinSize) {
-                this.clusterOptions.minimumClusterSize = parseInt(this.clusterMinSize);
             }
             
             // Track if we're in initial load phase
@@ -275,10 +241,55 @@ define([
                 
                 // Initialize marker clusterer only if enabled
                 if (this.clusterEnabled) {
+                    // Create custom renderer for white clusters
+                    var customRenderer = {
+                        render: function(cluster, stats) {
+                            var count = cluster.count;
+                            var position = cluster.position;
+                            
+                            // Determine which style to use based on count (reduced by 20%)
+                            var size = 42;  // was 53
+                            var textSize = 10;
+                            if (count >= 10) {
+                                size = 45;  // was 56
+                                textSize = 11;
+                            }
+                            if (count >= 100) {
+                                size = 53;  // was 66
+                                textSize = 12;
+                            }
+                            
+                            // Create white circle with gradient (solid center to almost completely transparent edge)
+                            var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size + '" viewBox="0 0 ' + size + ' ' + size + '">' +
+                                     '<defs>' +
+                                     '<radialGradient id="grad' + count + '">' +
+                                     '<stop offset="0%" style="stop-color:rgba(255,255,255,1)" />' +
+                                     '<stop offset="40%" style="stop-color:rgba(255,255,255,0.9)" />' +
+                                     '<stop offset="70%" style="stop-color:rgba(255,255,255,0.4)" />' +
+                                     '<stop offset="90%" style="stop-color:rgba(255,255,255,0.1)" />' +
+                                     '<stop offset="100%" style="stop-color:rgba(255,255,255,0)" />' +
+                                     '</radialGradient>' +
+                                     '</defs>' +
+                                     '<circle cx="' + (size/2) + '" cy="' + (size/2) + '" r="' + (size/2) + '" fill="url(#grad' + count + ')" />' +
+                                     '<text x="' + (size/2) + '" y="' + (size/2 + textSize/3) + '" font-family="Arial" font-size="' + textSize + '" font-weight="bold" text-anchor="middle" fill="black">' + count + '</text>' +
+                                     '</svg>';
+                            
+                            return new google.maps.Marker({
+                                position: position,
+                                icon: {
+                                    url: 'data:image/svg+xml;base64,' + btoa(svg),
+                                    scaledSize: new google.maps.Size(size, size),
+                                    anchor: new google.maps.Point(size/2, size/2)
+                                },
+                                zIndex: Number(google.maps.Marker.MAX_ZINDEX) + count
+                            });
+                        }
+                    };
+                    
                     this.markerCluster = new markerClusterer.MarkerClusterer({
                         map: this.map,
                         markers: [],
-                        ...this.clusterOptions
+                        renderer: customRenderer
                     });
                 }
             
@@ -550,8 +561,8 @@ define([
                         animation: google.maps.Animation.DROP,
                         icon: {
                             url: require.toUrl('Zhik_DealerLocator/images/map-icon.png'),
-                            scaledSize: new google.maps.Size(30, 30),
-                            anchor: new google.maps.Point(15, 30)
+                            scaledSize: new google.maps.Size(32, 42),
+                            anchor: new google.maps.Point(16, 42)
                         }
                     });
                     
@@ -836,25 +847,6 @@ define([
          */
         reloadPage: function () {
             window.location.reload();
-        },
-        
-        /**
-         * Update cluster options
-         */
-        updateClusterOptions: function (options) {
-            if (this.markerCluster) {
-                // Update cluster options dynamically
-                _.extend(this.clusterOptions, options);
-                
-                // Recreate cluster with new options
-                var markers = this.markerCluster.getMarkers();
-                this.markerCluster.clearMarkers();
-                this.markerCluster = new markerClusterer.MarkerClusterer({
-                    map: this.map,
-                    markers: markers,
-                    ...this.clusterOptions
-                });
-            }
         }
     });
 });
