@@ -185,38 +185,6 @@
             padding: 20px;
         }
         
-        .results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 24px;
-        }
-        
-        .results-header h2 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-            color: #ffffff;
-        }
-        
-        .result-count {
-            font-size: 16px;
-            color: #999999;
-        }
-        
-        .results-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            cursor: pointer;
-            font-size: 24px;
-            line-height: 1;
-            color: #ffffff;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-        
         .dealer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -572,11 +540,6 @@
                 grid-template-columns: 1fr;
                 gap: 16px;
             }
-            
-            .results-header {
-                flex-direction: column;
-                gap: 8px;
-            }
         }
     </style>
     <!-- jQuery -->
@@ -606,11 +569,6 @@
         <!-- Results Panel -->
         <div class="dealer-results-section" id="results-panel">
             <div class="results-container">
-                <div class="results-header">
-                    <h2>Dealer Locations</h2>
-                    <span class="result-count" id="results-count">0 locations found</span>
-                </div>
-                <button class="results-close" onclick="closeResults()">&times;</button>
                 <div class="dealer-grid" id="results-list">
                     <!-- Results will be inserted here -->
                 </div>
@@ -667,7 +625,7 @@
         // Map configuration
         let mapStyle = [];
         let mapConfig = {
-            defaultLat: 40.7128,
+            defaultLat: 40.7128,  // Default: New York
             defaultLng: -74.0060,
             defaultZoom: 10,
             defaultRadius: 50
@@ -676,15 +634,31 @@
         // Load map configuration from server
         async function loadMapConfig() {
             try {
-                const response = await fetch('https://localhost/dealerlocator/map/config/');
+                const response = await fetch(window.location.origin + '/dealerlocator/map/config/');
                 if (response.ok) {
                     const config = await response.json();
+                    console.log('Map configuration loaded:', config);
+                    
+                    // Debug geo IP detection
+                    console.log('=== GEO IP DETECTION DEBUG ===');
+                    console.log('Detected IP:', config.detectedIp);
+                    console.log('Geo IP Used:', config.geoIpUsed);
+                    console.log('User Location:', config.userLat, config.userLng);
+                    console.log('User City:', config.userCity);
+                    console.log('User Region:', config.userRegion);
+                    console.log('User Country:', config.userCountry);
+                    console.log('Default Location:', config.defaultLat, config.defaultLng);
+                    console.log('==============================');
+                    
                     if (config.mapStyle && Array.isArray(config.mapStyle)) {
                         mapStyle = config.mapStyle;
+                        console.log('Map style applied:', mapStyle.length, 'rules');
                     }
+                    
                     // Apply other configuration
                     mapConfig = Object.assign(mapConfig, config);
-                    console.log('Map configuration loaded:', config);
+                } else {
+                    console.error('Failed to load map config:', response.status, response.statusText);
                 }
             } catch (error) {
                 console.error('Failed to load map configuration:', error);
@@ -880,13 +854,13 @@
                             searchNearby(pos.lat, pos.lng);
                         },
                         function() {
-                            // Use default location
-                            searchNearby(40.7128, -74.0060);
+                            // Use default location (head office)
+                            searchNearby(mapConfig.defaultLat, mapConfig.defaultLng);
                         }
                     );
                 } else {
-                    // Use default location
-                    searchNearby(40.7128, -74.0060);
+                    // Use default location (head office)
+                    searchNearby(mapConfig.defaultLat, mapConfig.defaultLng);
                 }
                 
                 showLoading(false);
@@ -1187,9 +1161,7 @@
         function updateResults(results) {
             const panel = $('#results-panel');
             const list = $('#results-list');
-            const count = $('#results-count');
             
-            count.text(results.length + ' locations found');
             list.empty();
             
             if (results.length === 0) {
@@ -1304,10 +1276,6 @@
             }
         }
         
-        // Close results panel
-        function closeResults() {
-            $('#results-panel').removeClass('show');
-        }
         
         // Get directions
         function getDirections(lat, lng, address) {
