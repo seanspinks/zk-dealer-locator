@@ -1,0 +1,172 @@
+<?php
+/**
+ * @var \Zhik\DealerLocator\Block\Adminhtml\System\Config\Field\EmbedCode $block
+ */
+$embedUrl = $block->getEmbedUrl();
+$elementId = $block->getElement()->getHtmlId();
+?>
+<div class="dealer-locator-embed-generator">
+    <div class="embed-section">
+        <h3><?= $block->escapeHtml(__('Embed URL')) ?></h3>
+        <div class="embed-url-container">
+            <input type="text" id="<?= $elementId ?>_url" value="<?= $block->escapeHtml($embedUrl) ?>" readonly 
+                   style="width: 70%; padding: 8px; background: #f5f5f5; border: 1px solid #ddd;">
+            <button type="button" onclick="window.open('<?= $block->escapeUrl($embedUrl) ?>', '_blank')" 
+                    class="action-default scalable" style="margin-left: 10px;">
+                <span><?= $block->escapeHtml(__('Preview')) ?></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="embed-section" style="margin-top: 20px;">
+        <h3><?= $block->escapeHtml(__('Customize Embed Code')) ?></h3>
+        
+        <div class="embed-options" style="background: #f9f9f9; padding: 15px; border: 1px solid #e0e0e0; border-radius: 4px;">
+            <div class="field-row" style="margin-bottom: 10px;">
+                <label style="display: inline-block; width: 100px;"><?= $block->escapeHtml(__('Width:')) ?></label>
+                <input type="text" id="<?= $elementId ?>_width" value="100%" 
+                       style="width: 150px; padding: 5px;" onchange="updateEmbedCode()">
+                <span style="margin-left: 10px; color: #666; font-size: 12px;">
+                    <?= $block->escapeHtml(__('(e.g., 100%, 800px, 50vw)')) ?>
+                </span>
+            </div>
+            
+            <div class="field-row" style="margin-bottom: 10px;">
+                <label style="display: inline-block; width: 100px;"><?= $block->escapeHtml(__('Height:')) ?></label>
+                <input type="text" id="<?= $elementId ?>_height" value="600px" 
+                       style="width: 150px; padding: 5px;" onchange="updateEmbedCode()">
+                <span style="margin-left: 10px; color: #666; font-size: 12px;">
+                    <?= $block->escapeHtml(__('(e.g., 600px, 400px, 80vh)')) ?>
+                </span>
+            </div>
+            
+            <div class="field-row" style="margin-bottom: 10px;">
+                <label style="display: inline-block; width: 100px;"><?= $block->escapeHtml(__('Border:')) ?></label>
+                <select id="<?= $elementId ?>_border" style="width: 150px; padding: 5px;" onchange="updateEmbedCode()">
+                    <option value="0"><?= $block->escapeHtml(__('No Border')) ?></option>
+                    <option value="1"><?= $block->escapeHtml(__('Thin Border')) ?></option>
+                    <option value="2"><?= $block->escapeHtml(__('Medium Border')) ?></option>
+                </select>
+            </div>
+            
+            <div class="field-row">
+                <label>
+                    <input type="checkbox" id="<?= $elementId ?>_responsive" checked onchange="updateEmbedCode()">
+                    <?= $block->escapeHtml(__('Make responsive (add wrapper div)')) ?>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="embed-section" style="margin-top: 20px;">
+        <h3><?= $block->escapeHtml(__('Generated Embed Code')) ?></h3>
+        <textarea id="<?= $elementId ?>_code" readonly 
+                  style="width: 100%; height: 150px; font-family: monospace; font-size: 12px; padding: 10px; background: #f5f5f5; border: 1px solid #ddd; resize: vertical;"></textarea>
+        
+        <div style="margin-top: 10px;">
+            <button type="button" onclick="copyEmbedCode('<?= $elementId ?>_code')" 
+                    class="action-primary" style="margin-right: 10px;">
+                <span><?= $block->escapeHtml(__('Copy to Clipboard')) ?></span>
+            </button>
+            <button type="button" onclick="resetEmbedCode()" class="action-default">
+                <span><?= $block->escapeHtml(__('Reset to Default')) ?></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="embed-section" style="margin-top: 20px; padding: 15px; background: #e8f4fd; border: 1px solid #bee5eb; border-radius: 4px;">
+        <h4 style="margin: 0 0 10px 0; color: #0c5460;"><?= $block->escapeHtml(__('Integration Tips')) ?></h4>
+        <ul style="margin: 0; padding-left: 20px; color: #0c5460;">
+            <li><?= $block->escapeHtml(__('The map will automatically adapt to the container size')) ?></li>
+            <li><?= $block->escapeHtml(__('For responsive design, use percentage widths or the responsive wrapper')) ?></li>
+            <li><?= $block->escapeHtml(__('The map includes search functionality and filtering by tags')) ?></li>
+            <li><?= $block->escapeHtml(__('All dealer information is displayed within the embedded map')) ?></li>
+        </ul>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function updateEmbedCode() {
+        var url = document.getElementById('<?= $elementId ?>_url').value;
+        var width = document.getElementById('<?= $elementId ?>_width').value;
+        var height = document.getElementById('<?= $elementId ?>_height').value;
+        var border = document.getElementById('<?= $elementId ?>_border').value;
+        var responsive = document.getElementById('<?= $elementId ?>_responsive').checked;
+        
+        var borderStyle = border === '0' ? '0' : border + 'px solid #ddd';
+        var code = '';
+        
+        if (responsive && width.includes('%')) {
+            // Responsive wrapper for percentage widths
+            var paddingBottom = '56.25%'; // 16:9 aspect ratio default
+            if (height.includes('px')) {
+                var heightNum = parseInt(height);
+                if (heightNum && width === '100%') {
+                    paddingBottom = heightNum + 'px';
+                }
+            }
+            
+            code = '<div style="position: relative; width: ' + width + '; padding-bottom: ' + paddingBottom + '; height: 0; overflow: hidden;">\n';
+            code += '  <iframe src="' + url + '"\n';
+            code += '          style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: ' + borderStyle + ';"\n';
+            code += '          frameborder="0"\n';
+            code += '          allowfullscreen>\n';
+            code += '  </iframe>\n';
+            code += '</div>';
+        } else {
+            // Standard iframe
+            code = '<iframe src="' + url + '"\n';
+            code += '        width="' + width + '"\n';
+            code += '        height="' + height + '"\n';
+            code += '        frameborder="0"\n';
+            code += '        style="border: ' + borderStyle + '; width: ' + width + '; height: ' + height + ';"\n';
+            code += '        allowfullscreen>\n';
+            code += '</iframe>';
+        }
+        
+        document.getElementById('<?= $elementId ?>_code').value = code;
+    }
+    
+    function copyEmbedCode(elementId) {
+        var textarea = document.getElementById(elementId);
+        textarea.select();
+        textarea.setSelectionRange(0, 99999);
+        
+        try {
+            document.execCommand('copy');
+            alert('<?= $block->escapeJs(__('Embed code copied to clipboard!')) ?>');
+        } catch (err) {
+            alert('<?= $block->escapeJs(__('Failed to copy. Please select the text and copy manually.')) ?>');
+        }
+    }
+    
+    function resetEmbedCode() {
+        document.getElementById('<?= $elementId ?>_width').value = '100%';
+        document.getElementById('<?= $elementId ?>_height').value = '600px';
+        document.getElementById('<?= $elementId ?>_border').value = '0';
+        document.getElementById('<?= $elementId ?>_responsive').checked = true;
+        updateEmbedCode();
+    }
+    
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateEmbedCode();
+    });
+</script>
+
+<style>
+    .dealer-locator-embed-generator h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 15px;
+        color: #303030;
+    }
+    
+    .embed-section {
+        margin-bottom: 25px;
+    }
+    
+    .field-row label {
+        font-weight: 600;
+    }
+</style>

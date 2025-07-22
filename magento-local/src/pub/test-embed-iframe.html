@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dealer Map Embed Test</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        
+        .section {
+            background: white;
+            padding: 30px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #555;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .section p {
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .embed-container {
+            margin: 20px 0;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        /* Responsive wrapper for 16:9 aspect ratio */
+        .responsive-embed {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+        }
+        
+        .responsive-embed iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+        }
+        
+        pre {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Dealer Locator Map - Iframe Embed Examples</h1>
+        
+        <!-- Example 1: Full Width Fixed Height -->
+        <div class="section">
+            <h2>Example 1: Full Width with Fixed Height (600px)</h2>
+            <p>This is the standard embed with 100% width and 600px height. It adapts to the container width.</p>
+            <div class="embed-container">
+                <iframe src="dealer-map-embed.html" 
+                        width="100%" 
+                        height="600" 
+                        frameborder="0" 
+                        style="border: 0; width: 100%; height: 600px;"
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <pre><code>&lt;iframe src="dealer-map-embed.html" 
+        width="100%" 
+        height="600" 
+        frameborder="0" 
+        style="border: 0; width: 100%; height: 600px;"
+        allowfullscreen&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+        
+        <!-- Example 2: Fixed Dimensions -->
+        <div class="section">
+            <h2>Example 2: Fixed Width and Height (800px x 500px)</h2>
+            <p>This example uses fixed dimensions. Good for sidebars or specific layout requirements.</p>
+            <div class="embed-container" style="text-align: center;">
+                <iframe src="dealer-map-embed.html" 
+                        width="800" 
+                        height="500" 
+                        frameborder="0" 
+                        style="border: 1px solid #ddd; width: 800px; height: 500px; max-width: 100%;"
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <pre><code>&lt;iframe src="dealer-map-embed.html" 
+        width="800" 
+        height="500" 
+        frameborder="0" 
+        style="border: 1px solid #ddd; width: 800px; height: 500px;"
+        allowfullscreen&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+        
+        <!-- Example 3: Responsive 16:9 -->
+        <div class="section">
+            <h2>Example 3: Responsive 16:9 Aspect Ratio</h2>
+            <p>This responsive embed maintains a 16:9 aspect ratio and scales with the container width. Perfect for responsive designs.</p>
+            <div class="embed-container">
+                <div class="responsive-embed">
+                    <iframe src="dealer-map-embed.html" 
+                            frameborder="0" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            </div>
+            <pre><code>&lt;div style="position: relative; width: 100%; padding-bottom: 56.25%; height: 0; overflow: hidden;"&gt;
+    &lt;iframe src="dealer-map-embed.html" 
+            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0;"
+            frameborder="0" 
+            allowfullscreen&gt;
+    &lt;/iframe&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+        
+        <!-- Example 4: Small Embed -->
+        <div class="section">
+            <h2>Example 4: Small Embed (400px x 300px)</h2>
+            <p>A compact version for smaller spaces or widget areas.</p>
+            <div class="embed-container" style="text-align: center;">
+                <iframe src="dealer-map-embed.html" 
+                        width="400" 
+                        height="300" 
+                        frameborder="0" 
+                        style="border: 2px solid #333; border-radius: 8px; width: 400px; height: 300px;"
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <pre><code>&lt;iframe src="dealer-map-embed.html" 
+        width="400" 
+        height="300" 
+        frameborder="0" 
+        style="border: 2px solid #333; border-radius: 8px; width: 400px; height: 300px;"
+        allowfullscreen&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+        
+        <!-- Example 5: Full Height -->
+        <div class="section">
+            <h2>Example 5: Full Viewport Height</h2>
+            <p>This example uses viewport height (80vh) to create a large, immersive map experience.</p>
+            <div class="embed-container">
+                <iframe src="dealer-map-embed.html" 
+                        width="100%" 
+                        height="800" 
+                        frameborder="0" 
+                        style="border: 0; width: 100%; height: 80vh; min-height: 500px;"
+                        allowfullscreen>
+                </iframe>
+            </div>
+            <pre><code>&lt;iframe src="dealer-map-embed.html" 
+        width="100%" 
+        height="800" 
+        frameborder="0" 
+        style="border: 0; width: 100%; height: 80vh; min-height: 500px;"
+        allowfullscreen&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+        
+        <!-- Features Section -->
+        <div class="section">
+            <h2>Embed Features</h2>
+            <p>The dealer locator map embed includes:</p>
+            <ul>
+                <li><strong>Interactive Map:</strong> Fully functional Google Maps with custom styling</li>
+                <li><strong>Search Functionality:</strong> Location search with autocomplete</li>
+                <li><strong>Tag Filtering:</strong> Filter dealers by tags/categories</li>
+                <li><strong>Dealer Information:</strong> Complete dealer details including address, phone, email, and website</li>
+                <li><strong>Responsive Design:</strong> Works on all screen sizes</li>
+                <li><strong>Clustering:</strong> Groups nearby markers for better performance</li>
+                <li><strong>Results Panel:</strong> Shows up to 3 dealers per row in a centered grid</li>
+                <li><strong>Get Directions:</strong> Direct links to Google Maps for navigation</li>
+            </ul>
+        </div>
+        
+        <!-- Integration Tips -->
+        <div class="section">
+            <h2>Integration Tips</h2>
+            <h3>Responsive Design</h3>
+            <p>For responsive websites, use percentage widths or the responsive wrapper technique shown in Example 3.</p>
+            
+            <h3>Custom Styling</h3>
+            <p>You can add custom CSS to style the iframe container:</p>
+            <pre><code>.map-container {
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}</code></pre>
+            
+            <h3>Performance</h3>
+            <p>Consider lazy loading for better page performance:</p>
+            <pre><code>&lt;iframe src="dealer-map-embed.html" 
+        loading="lazy"
+        width="100%" 
+        height="600"&gt;
+&lt;/iframe&gt;</code></pre>
+        </div>
+    </div>
+</body>
+</html>

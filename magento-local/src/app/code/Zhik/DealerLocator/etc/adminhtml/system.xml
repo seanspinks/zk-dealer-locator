@@ -44,6 +44,11 @@
             </group>
             <group id="map" translate="label" type="text" sortOrder="25" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Map Display Settings</label>
+                <field id="embed_code" translate="label comment" type="text" sortOrder="10" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Map Embed Code</label>
+                    <frontend_model>Zhik\DealerLocator\Block\Adminhtml\System\Config\Field\EmbedCode</frontend_model>
+                    <comment>Copy this iframe code to embed the dealer locator map on any website</comment>
+                </field>
                 <field id="default_latitude" translate="label comment" type="text" sortOrder="20" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Default Map Latitude</label>
                     <comment>Default center latitude for map display</comment>

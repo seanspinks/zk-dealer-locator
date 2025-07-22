@@ -175,6 +175,8 @@
             box-shadow: 0 -2px 8px rgba(0,0,0,0.3);
             transform: translateY(100%);
             transition: transform 0.3s ease;
+            display: flex;
+            justify-content: center;
         }
         
         .dealer-results-section.show {
@@ -183,12 +185,21 @@
         
         .results-container {
             padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
         
         .dealer-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
             gap: 20px;
+            max-width: 100%;
+        }
+        
+        @media (min-width: 1200px) {
+            .dealer-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
         }
         
         .dealer-card {
@@ -510,6 +521,32 @@
             display: block;
         }
         
+        /* Location indicator */
+        .location-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 100;
+        }
+        
+        .location-indicator.show {
+            display: flex;
+        }
+        
+        .location-indicator .icon {
+            width: 14px;
+            height: 14px;
+            fill: #00ff00;
+        }
+        
         @media (max-width: 768px) {
             .map-controls {
                 top: 8px;
@@ -536,9 +573,19 @@
                 max-height: 60%;
             }
             
+            .results-container {
+                padding: 15px;
+            }
+            
             .dealer-grid {
                 grid-template-columns: 1fr;
                 gap: 16px;
+            }
+        }
+        
+        @media (min-width: 769px) and (max-width: 1199px) {
+            .dealer-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
         }
     </style>
@@ -587,6 +634,14 @@
         <div class="error-message" id="error-message">
             <h3>Unable to load map</h3>
             <p>Please check your internet connection and try again.</p>
+        </div>
+        
+        <!-- Location Indicator -->
+        <div class="location-indicator" id="location-indicator">
+            <svg class="icon" viewBox="0 0 24 24">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            <span id="location-text"></span>
         </div>
     </div>
     
@@ -842,25 +897,51 @@
                     }
                 });
                 
-                // Try to get user location
-                if (navigator.geolocation) {
+                // Determine initial location
+                let initialLat = mapConfig.defaultLat;
+                let initialLng = mapConfig.defaultLng;
+                let locationSource = 'default';
+                
+                // First priority: Use geo IP location if available
+                if (mapConfig.geoIpUsed && mapConfig.userLat && mapConfig.userLng) {
+                    initialLat = parseFloat(mapConfig.userLat);
+                    initialLng = parseFloat(mapConfig.userLng);
+                    locationSource = 'geoip';
+                    console.log('Using Geo IP location:', mapConfig.userCity, mapConfig.userRegion, mapConfig.userCountry);
+                    
+                    // Show location indicator
+                    showLocationIndicator('Approximate location: ' + (mapConfig.userCity || 'Your area'));
+                }
+                
+                // Set initial map center and search
+                map.setCenter({ lat: initialLat, lng: initialLng });
+                searchNearby(initialLat, initialLng);
+                
+                // Then try to get more precise browser geolocation
+                if (navigator.geolocation && locationSource !== 'browser') {
                     navigator.geolocation.getCurrentPosition(
                         function(position) {
                             const pos = {
                                 lat: position.coords.latitude,
                                 lng: position.coords.longitude
                             };
+                            console.log('Browser geolocation available, updating to more precise location');
                             map.setCenter(pos);
                             searchNearby(pos.lat, pos.lng);
+                            
+                            // Update location indicator
+                            $('#location-indicator').removeClass('show');
                         },
-                        function() {
-                            // Use default location (head office)
-                            searchNearby(mapConfig.defaultLat, mapConfig.defaultLng);
+                        function(error) {
+                            console.log('Browser geolocation failed:', error.message);
+                            // Keep using the geo IP or default location
+                        },
+                        {
+                            timeout: 5000,
+                            maximumAge: 0,
+                            enableHighAccuracy: false
                         }
                     );
-                } else {
-                    // Use default location (head office)
-                    searchNearby(mapConfig.defaultLat, mapConfig.defaultLng);
                 }
                 
                 showLoading(false);
@@ -984,18 +1065,54 @@
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
+                        console.log('Using browser geolocation:', pos.lat, pos.lng);
                         map.setCenter(pos);
                         map.setZoom(12);
                         searchNearby(pos.lat, pos.lng);
                     },
-                    function() {
-                        showLoading(false);
-                        alert('Unable to get your location. Please enable location services.');
+                    function(error) {
+                        console.log('Browser geolocation error:', error.message);
+                        
+                        // Fall back to geo IP location if available
+                        if (mapConfig.geoIpUsed && mapConfig.userLat && mapConfig.userLng) {
+                            const geoIpPos = {
+                                lat: parseFloat(mapConfig.userLat),
+                                lng: parseFloat(mapConfig.userLng)
+                            };
+                            console.log('Falling back to Geo IP location:', mapConfig.userCity);
+                            map.setCenter(geoIpPos);
+                            map.setZoom(12);
+                            searchNearby(geoIpPos.lat, geoIpPos.lng);
+                            showLoading(false);
+                            alert('Using approximate location based on your IP address. For precise location, please enable location services.');
+                        } else {
+                            showLoading(false);
+                            alert('Unable to get your location. Please enable location services or try searching for a location.');
+                        }
+                    },
+                    {
+                        timeout: 5000,
+                        maximumAge: 0,
+                        enableHighAccuracy: true
                     }
                 );
             } else {
-                showLoading(false);
-                alert('Your browser does not support geolocation.');
+                // No browser geolocation support, try geo IP
+                if (mapConfig.geoIpUsed && mapConfig.userLat && mapConfig.userLng) {
+                    const geoIpPos = {
+                        lat: parseFloat(mapConfig.userLat),
+                        lng: parseFloat(mapConfig.userLng)
+                    };
+                    console.log('Browser does not support geolocation, using Geo IP:', mapConfig.userCity);
+                    map.setCenter(geoIpPos);
+                    map.setZoom(12);
+                    searchNearby(geoIpPos.lat, geoIpPos.lng);
+                    showLoading(false);
+                    alert('Using approximate location based on your IP address.');
+                } else {
+                    showLoading(false);
+                    alert('Your browser does not support geolocation.');
+                }
             }
         }
         
@@ -1319,6 +1436,17 @@
         // Show/hide error
         function showError(show) {
             $('#error-message').toggleClass('show', show);
+        }
+        
+        // Show location indicator
+        function showLocationIndicator(text) {
+            $('#location-text').text(text);
+            $('#location-indicator').addClass('show');
+            
+            // Hide after 10 seconds
+            setTimeout(function() {
+                $('#location-indicator').removeClass('show');
+            }, 10000);
         }
         
         // Google Maps callback
