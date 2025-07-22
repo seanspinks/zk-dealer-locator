@@ -25,7 +25,7 @@
         <column xsi:type="text" name="hours" nullable="true" comment="Business Hours"/>
         <column xsi:type="text" name="description" nullable="true" comment="Location Description"/>
         <column xsi:type="varchar" name="image_url" nullable="true" length="255" comment="Location Image URL"/>
-        <column xsi:type="varchar" name="status" nullable="false" length="20" default="pending" comment="Status: pending, approved, rejected"/>
+        <column xsi:type="varchar" name="status" nullable="false" length="20" default="pending" comment="Status: pending, approved, rejected, pending_deletion"/>
         <column xsi:type="text" name="rejection_reason" nullable="true" comment="Rejection Reason"/>
         <column xsi:type="boolean" name="is_latest" nullable="false" default="true" comment="Is Latest Version"/>
         <column xsi:type="timestamp" name="created_at" on_update="false" nullable="false" default="CURRENT_TIMESTAMP" comment="Created At"/>

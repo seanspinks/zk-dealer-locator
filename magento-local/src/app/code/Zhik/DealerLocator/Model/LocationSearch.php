@@ -87,12 +87,28 @@ class LocationSearch implements LocationSearchInterface
         ?int $limit = null,
         ?int $page = null
     ): \Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface {
-        $this->searchCriteriaBuilder->addFilter('status', LocationInterface::STATUS_APPROVED);
+        // Include both approved and pending deletion locations
+        $statusFilter1 = $this->filterBuilder
+            ->setField('status')
+            ->setValue(LocationInterface::STATUS_APPROVED)
+            ->setConditionType('eq')
+            ->create();
+            
+        $statusFilter2 = $this->filterBuilder
+            ->setField('status')
+            ->setValue(LocationInterface::STATUS_PENDING_DELETION)
+            ->setConditionType('eq')
+            ->create();
+            
+        $statusFilterGroup = $this->filterGroupBuilder
+            ->addFilter($statusFilter1)
+            ->addFilter($statusFilter2)
+            ->create();
+            
+        $filterGroups = [$statusFilterGroup];
         $this->searchCriteriaBuilder->addFilter('is_latest', 1);
 
         if ($query !== null) {
-            $filterGroups = [];
-            
             // Search in multiple fields
             $fields = ['name', 'address', 'city', 'description'];
             foreach ($fields as $field) {
@@ -108,9 +124,9 @@ class LocationSearch implements LocationSearchInterface
                 
                 $filterGroups[] = $filterGroup;
             }
-            
-            $this->searchCriteriaBuilder->setFilterGroups($filterGroups);
         }
+        
+        $this->searchCriteriaBuilder->setFilterGroups($filterGroups);
 
         if ($country !== null) {
             $this->searchCriteriaBuilder->addFilter('country', $country);
@@ -163,8 +179,13 @@ class LocationSearch implements LocationSearchInterface
     ): \Zhik\DealerLocator\Api\Data\LocationSearchResultsInterface {
         $collection = $this->collectionFactory->create();
         
-        // Base filters
-        $collection->addFieldToFilter('status', LocationInterface::STATUS_APPROVED);
+        // Base filters - include both approved and pending deletion locations
+        $collection->addFieldToFilter('status', [
+            'in' => [
+                LocationInterface::STATUS_APPROVED,
+                LocationInterface::STATUS_PENDING_DELETION
+            ]
+        ]);
         $collection->addFieldToFilter('is_latest', 1);
         
         // Calculate distance using Haversine formula

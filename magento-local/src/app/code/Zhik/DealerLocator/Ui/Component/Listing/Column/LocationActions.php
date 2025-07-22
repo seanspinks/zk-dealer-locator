@@ -105,7 +105,8 @@ class LocationActions extends Column
                         'confirm' => [
                             'title' => __('Delete Location'),
                             'message' => __('Are you sure you want to delete this location?')
-                        ]
+                        ],
+                        'post' => true
                     ];
                 }
             }

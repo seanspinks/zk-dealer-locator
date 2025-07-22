@@ -85,6 +85,28 @@
                     <label translate="true">Reject</label>
                 </settings>
             </action>
+            <action name="approve_deletion">
+                <settings>
+                    <confirm>
+                        <message translate="true">Are you sure you want to permanently delete the selected locations marked for deletion?</message>
+                        <title translate="true">Approve Deletion</title>
+                    </confirm>
+                    <url path="*/*/massApproveDeletion"/>
+                    <type>delete</type>
+                    <label translate="true">Approve Deletion</label>
+                </settings>
+            </action>
+            <action name="reject_deletion">
+                <settings>
+                    <confirm>
+                        <message translate="true">Are you sure you want to reject the deletion request for the selected locations?</message>
+                        <title translate="true">Reject Deletion</title>
+                    </confirm>
+                    <url path="*/*/massRejectDeletion"/>
+                    <type>reject</type>
+                    <label translate="true">Reject Deletion</label>
+                </settings>
+            </action>
         </massaction>
         <paging name="listing_paging"/>
     </listingToolbar>

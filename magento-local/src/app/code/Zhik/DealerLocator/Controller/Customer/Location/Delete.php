@@ -12,7 +12,9 @@ use Magento\Customer\Model\Session;
 use Magento\Framework\App\Action\Context;
 use Magento\Framework\App\Action\HttpPostActionInterface;
 use Magento\Framework\Controller\Result\Redirect;
+use Magento\Framework\Exception\LocalizedException;
 use Zhik\DealerLocator\Api\LocationRepositoryInterface;
+use Zhik\DealerLocator\Api\Data\LocationInterface;
 
 /**
  * Delete location controller
@@ -65,16 +67,24 @@ class Delete extends AbstractAccount implements HttpPostActionInterface
             
             // Verify ownership
             if ($location->getCustomerId() != $this->customerSession->getCustomerId()) {
-                throw new \Exception(__('You are not authorized to delete this location.'));
+                throw new LocalizedException(__('You are not authorized to delete this location.'));
             }
             
-            // Check if location can be deleted
-            if ($location->getStatus() === 'approved') {
-                throw new \Exception(__('Approved locations cannot be deleted.'));
+            // Check if already pending deletion
+            if ($location->getStatus() === LocationInterface::STATUS_PENDING_DELETION) {
+                throw new LocalizedException(__('This location is already pending deletion.'));
             }
             
-            $this->locationRepository->delete($location);
-            $this->messageManager->addSuccessMessage(__('Location has been deleted.'));
+            // For approved locations, mark as pending deletion instead of deleting
+            if ($location->getStatus() === LocationInterface::STATUS_APPROVED) {
+                $location->setStatus(LocationInterface::STATUS_PENDING_DELETION);
+                $this->locationRepository->save($location);
+                $this->messageManager->addSuccessMessage(__('Location has been marked for deletion. An administrator will review this request.'));
+            } else {
+                // For non-approved locations (pending, rejected), delete immediately
+                $this->locationRepository->delete($location);
+                $this->messageManager->addSuccessMessage(__('Location has been deleted.'));
+            }
             
         } catch (\Exception $e) {
             $this->messageManager->addErrorMessage($e->getMessage());

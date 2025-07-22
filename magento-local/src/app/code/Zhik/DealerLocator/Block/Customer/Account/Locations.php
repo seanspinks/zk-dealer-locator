@@ -133,6 +133,8 @@ class Locations extends Template
                 return 'status-approved';
             case 'rejected':
                 return 'status-rejected';
+            case 'pending_deletion':
+                return 'status-pending-deletion';
             case 'pending':
             default:
                 return 'status-pending';
@@ -158,7 +160,11 @@ class Locations extends Template
      */
     public function canDelete($location)
     {
-        // Allow customers to delete their own locations regardless of status
+        // Don't allow deletion if already pending deletion
+        if ($location->getStatus() === 'pending_deletion') {
+            return false;
+        }
+        // Allow customers to delete their own locations
         return true;
     }
 
@@ -173,12 +179,16 @@ class Locations extends Template
             'all' => [],
             'approved' => [],
             'pending' => [],
-            'rejected' => []
+            'rejected' => [],
+            'pending_deletion' => []
         ];
 
         foreach ($this->getLocations() as $location) {
             $grouped['all'][] = $location;
-            $grouped[$location->getStatus()][] = $location;
+            $status = $location->getStatus();
+            if (isset($grouped[$status])) {
+                $grouped[$status][] = $location;
+            }
         }
 
         return $grouped;

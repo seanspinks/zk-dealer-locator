@@ -25,7 +25,8 @@ class Status implements OptionSourceInterface
         return [
             ['value' => LocationInterface::STATUS_PENDING, 'label' => __('Pending')],
             ['value' => LocationInterface::STATUS_APPROVED, 'label' => __('Approved')],
-            ['value' => LocationInterface::STATUS_REJECTED, 'label' => __('Rejected')]
+            ['value' => LocationInterface::STATUS_REJECTED, 'label' => __('Rejected')],
+            ['value' => LocationInterface::STATUS_PENDING_DELETION, 'label' => __('Pending Deletion')]
         ];
     }
 }
