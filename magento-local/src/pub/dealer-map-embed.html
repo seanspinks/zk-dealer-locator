@@ -1201,9 +1201,19 @@
                         }
                     });
                     
+                    // Store location data with marker
+                    marker.locationData = location;
+                    
                     marker.addListener('click', function() {
                         showInfoWindow(marker, location);
-                        selectLocation(index);
+                        // Find current index of this location
+                        const currentIndex = locations.findIndex(loc => 
+                            loc.latitude === location.latitude && 
+                            loc.longitude === location.longitude
+                        );
+                        if (currentIndex !== -1) {
+                            selectLocation(currentIndex);
+                        }
                     });
                     
                     markers.push(marker);
@@ -1396,13 +1406,78 @@
             $('.location-item').removeClass('active');
             $('.location-item[data-index="' + index + '"]').addClass('active');
             
-            // Center on marker and show info window
-            const marker = markers[index];
+            // Get the location from current sorted array
             const location = locations[index];
             
+            // Find the corresponding marker by matching location coordinates
+            const marker = markers.find(m => 
+                m.locationData && 
+                m.locationData.latitude === location.latitude && 
+                m.locationData.longitude === location.longitude
+            );
+            
             if (marker && location) {
-                map.setCenter(marker.getPosition());
-                map.setZoom(12); // Show approximately 15km radius
+                // Center the map on the selected location with smooth animation
+                const position = new google.maps.LatLng(
+                    parseFloat(location.latitude), 
+                    parseFloat(location.longitude)
+                );
+                
+                // Pan to the location smoothly
+                map.panTo(position);
+                
+                // Set zoom after a short delay to allow pan to start
+                setTimeout(() => {
+                    map.setZoom(12); // Show approximately 15km radius
+                }, 300);
+                
+                // Recalculate distances from selected location
+                const selectedLat = parseFloat(location.latitude);
+                const selectedLng = parseFloat(location.longitude);
+                
+                locations.forEach(loc => {
+                    if (loc.latitude && loc.longitude) {
+                        loc.distance = calculateDistance(
+                            selectedLat,
+                            selectedLng,
+                            parseFloat(loc.latitude),
+                            parseFloat(loc.longitude)
+                        );
+                    }
+                });
+                
+                // Sort by distance from selected location
+                locations.sort((a, b) => (a.distance || 0) - (b.distance || 0));
+                
+                // Update the results display with new sort order
+                updateResults(locations);
+                
+                // Find the new index of the selected location after sorting
+                const newIndex = locations.findIndex(loc => 
+                    loc.latitude === location.latitude && 
+                    loc.longitude === location.longitude
+                );
+                
+                // Update selected index and re-highlight
+                if (newIndex !== -1) {
+                    selectedLocationIndex = newIndex;
+                    const selectedCard = $('.location-item[data-index="' + newIndex + '"]');
+                    selectedCard.addClass('active');
+                    
+                    // Ensure the selected card is visible in the results panel
+                    const resultsPanel = $('#results-panel');
+                    const cardTop = selectedCard.position().top + resultsPanel.scrollTop();
+                    const cardHeight = selectedCard.outerHeight();
+                    const panelHeight = resultsPanel.height();
+                    const panelScrollTop = resultsPanel.scrollTop();
+                    
+                    // Scroll to show the selected card if it's not fully visible
+                    if (cardTop < panelScrollTop || cardTop + cardHeight > panelScrollTop + panelHeight) {
+                        resultsPanel.animate({
+                            scrollTop: cardTop - (panelHeight / 2) + (cardHeight / 2)
+                        }, 300);
+                    }
+                }
                 
                 // Wait for map to settle then show info window
                 setTimeout(function() {
