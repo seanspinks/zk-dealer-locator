@@ -655,7 +655,8 @@
         let availableTags = [];
         let locations = [];
         let selectedLocationIndex = null;
-        let showGlobalView = false;
+        // Check if showGlobalView was already set in this session
+        let showGlobalView = sessionStorage.getItem('showGlobalView') === 'true' || false;
         
         // API endpoints - adjust these to match your setup
         const API_BASE = window.location.origin;
@@ -674,6 +675,11 @@
                     performSearch();
                 }
             });
+            
+            // Set the All button as active if global view was previously enabled
+            if (showGlobalView) {
+                $('#global-view-btn').addClass('active');
+            }
         });
         
         // Map configuration
@@ -1015,14 +1021,21 @@
             searchNearby(center.lat(), center.lng());
         }
         
-        // Toggle global view
+        // Enable global view (one-way activation for the session)
         function toggleGlobalView() {
-            showGlobalView = !showGlobalView;
-            const btn = $('#global-view-btn');
-            btn.toggleClass('active');
-            
-            const center = map.getCenter();
-            searchNearby(center.lat(), center.lng());
+            // Only allow setting to true, never back to false
+            if (!showGlobalView) {
+                showGlobalView = true;
+                // Save to session storage
+                sessionStorage.setItem('showGlobalView', 'true');
+                
+                const btn = $('#global-view-btn');
+                btn.addClass('active');
+                
+                const center = map.getCenter();
+                searchNearby(center.lat(), center.lng());
+            }
+            // If already showing all, do nothing when clicked again
         }
         
         // Handle search key press
@@ -1044,7 +1057,12 @@
                 if (status === 'OK' && results[0]) {
                     const location = results[0].geometry.location;
                     map.setCenter(location);
-                    map.setZoom(12);
+                    // If showing all locations, use a wider zoom to keep all dealers visible
+                    if (showGlobalView) {
+                        map.setZoom(10); // Wider view for global
+                    } else {
+                        map.setZoom(12); // Closer view for local search
+                    }
                     searchNearby(location.lat(), location.lng());
                 } else {
                     showLoading(false);
@@ -1202,7 +1220,11 @@
             
             // Fit map to show all markers
             if (results.length > 0) {
-                fitMapToBounds();
+                // If global view is active and user performed a search, 
+                // don't fit bounds as it would override the search center
+                if (!showGlobalView || !$('#search-input').val()) {
+                    fitMapToBounds();
+                }
             }
         }
         
@@ -1380,7 +1402,7 @@
             
             if (marker && location) {
                 map.setCenter(marker.getPosition());
-                map.setZoom(16);
+                map.setZoom(12); // Show approximately 15km radius
                 
                 // Wait for map to settle then show info window
                 setTimeout(function() {
@@ -1404,11 +1426,20 @@
                 bounds.extend(marker.getPosition());
             });
             
-            map.fitBounds(bounds);
-            
-            // Don't zoom in too far for single marker
-            if (markers.length === 1) {
-                map.setZoom(Math.min(map.getZoom(), 15));
+            // If showing global view and user searched, maintain center on searched location
+            if (showGlobalView && $('#search-input').val()) {
+                // Don't fitBounds, just ensure we're not zoomed in too far
+                const currentZoom = map.getZoom();
+                if (currentZoom > 10) {
+                    map.setZoom(10);
+                }
+            } else {
+                map.fitBounds(bounds);
+                
+                // Don't zoom in too far for single marker
+                if (markers.length === 1) {
+                    map.setZoom(Math.min(map.getZoom(), 12)); // Limit to ~15km radius
+                }
             }
         }
         
