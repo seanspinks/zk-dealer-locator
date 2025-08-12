@@ -1,0 +1,38 @@
+<?php
+/**
+ * Copyright © Zhik. All rights reserved.
+ * 
+ * @var \Zhik\DealerLocator\Block\Map\View $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$apiKey = $block->getGoogleMapsApiKey();
+if ($apiKey && $block->isMapEnabled()):
+?>
+<script async defer 
+        src="https://maps.googleapis.com/maps/api/js?key=<?= $escaper->escapeHtmlAttr($apiKey) ?>&libraries=places&callback=initMapCallback">
+</script>
+<script>
+    // Global flag to track if Google Maps is loaded
+    window.googleMapsLoaded = false;
+    window.markerClustererLoaded = false;
+    
+    // Global callback for Google Maps
+    window.initMapCallback = function() {
+        console.log('[DealerLocator] Google Maps API loaded');
+        window.googleMapsLoaded = true;
+        
+        // Load MarkerClusterer after Google Maps is ready
+        var script = document.createElement('script');
+        script.src = 'https://unpkg.com/@googlemaps/markerclusterer@2.5.0/dist/index.min.js';
+        script.onload = function() {
+            console.log('[DealerLocator] MarkerClusterer loaded');
+            window.markerClustererLoaded = true;
+        };
+        script.onerror = function() {
+            console.error('[DealerLocator] Failed to load MarkerClusterer');
+        };
+        document.head.appendChild(script);
+    };
+</script>
+<?php endif; ?>

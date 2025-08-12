@@ -1,0 +1,222 @@
+<?php
+/**
+ * Copyright © Zhik. All rights reserved.
+ * 
+ * @var \Zhik\DealerLocator\Block\Map\View $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+if (!$block->isMapEnabled()) {
+    return;
+}
+
+$mapConfig = $block->getMapConfig();
+// Log map config for debugging
+if (!empty($mapConfig['mapStyle'])) {
+    error_log('Map style loaded from config: ' . json_encode($mapConfig['mapStyle']));
+} else {
+    error_log('No map style found in configuration');
+}
+$hasApiKey = !empty($mapConfig['apiKey']);
+?>
+<div class="dealer-map-page" data-bind="scope: 'dealer-map'">
+    <?php if (!$hasApiKey): ?>
+    <!-- API Key Warning -->
+    <div class="map-error-container">
+        <div class="map-error-message">
+            <div class="error-icon">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+            </div>
+            <h2><?= $escaper->escapeHtml(__('Google Maps API Key Required')) ?></h2>
+            <p><?= $escaper->escapeHtml(__('To display the dealer map, please configure your Google Maps API key in the admin panel.')) ?></p>
+            <div class="setup-instructions">
+                <h3><?= $escaper->escapeHtml(__('Setup Instructions:')) ?></h3>
+                <ol>
+                    <li><?= $escaper->escapeHtml(__('Go to the Google Cloud Console')) ?>: <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a></li>
+                    <li><?= $escaper->escapeHtml(__('Create a new project or select an existing one')) ?></li>
+                    <li><?= $escaper->escapeHtml(__('Enable the following APIs:')) ?>
+                        <ul>
+                            <li>Maps JavaScript API</li>
+                            <li>Places API</li>
+                            <li>Geocoding API</li>
+                        </ul>
+                    </li>
+                    <li><?= $escaper->escapeHtml(__('Create an API key in the Credentials section')) ?></li>
+                    <li><?= $escaper->escapeHtml(__('Add your API key in Magento Admin:')) ?><br>
+                        <code class="admin-path">Stores > Configuration > Zhik > Dealer Locator > Google Maps Configuration</code>
+                    </li>
+                </ol>
+            </div>
+            <div class="demo-mode-info">
+                <p><?= $escaper->escapeHtml(__('For development purposes, you can use the list view below to see dealer locations without a map.')) ?></p>
+            </div>
+        </div>
+    </div>
+    <?php else: ?>
+    <!-- Full Width Map Container -->
+    <div class="dealer-map-container">
+        <!-- Map Canvas -->
+        <div id="dealer-map-canvas" class="map-canvas"></div>
+        
+        <!-- Overlay Search Container -->
+        <div class="map-overlay-controls">
+            <!-- Search Bar -->
+            <div class="search-overlay">
+                <div class="search-box">
+                    <input type="text" 
+                           id="map-search-input" 
+                           class="search-input" 
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Search city, ZIP code, or address...')) ?>"
+                           data-bind="value: searchQuery, valueUpdate: 'keyup', event: { keypress: searchOnEnter }">
+                    <button type="button" 
+                            class="search-btn"
+                            data-bind="click: performSearch"
+                            title="<?= $escaper->escapeHtmlAttr(__('Search')) ?>">
+                        <svg class="icon icon-search" width="20" height="20" viewBox="0 0 20 20">
+                            <path d="M19.7,18.3l-5.1-5.1C15.5,11.9,16,10.5,16,9c0-3.9-3.1-7-7-7S2,5.1,2,9s3.1,7,7,7c1.5,0,2.9-0.5,4.1-1.3l5.1,5.1c0.2,0.2,0.5,0.3,0.7,0.3s0.5-0.1,0.7-0.3C20.1,19.3,20.1,18.7,19.7,18.3z M4,9c0-2.8,2.2-5,5-5s5,2.2,5,5s-2.2,5-5,5S4,11.8,4,9z"/>
+                        </svg>
+                    </button>
+                    <button type="button" 
+                            class="location-btn"
+                            data-bind="click: useMyLocation"
+                            title="<?= $escaper->escapeHtmlAttr(__('Use my location')) ?>">
+                        <svg class="icon icon-location" width="20" height="20" viewBox="0 0 20 20">
+                            <path d="M10,2C6.1,2,3,5.1,3,9c0,5.2,7,11,7,11s7-5.8,7-11C17,5.1,13.9,2,10,2z M10,11.5c-1.4,0-2.5-1.1-2.5-2.5S8.6,6.5,10,6.5s2.5,1.1,2.5,2.5S11.4,11.5,10,11.5z"/>
+                        </svg>
+                    </button>
+                    <button type="button" 
+                            class="global-toggle"
+                            data-bind="click: toggleGlobalView, css: { 'active': showGlobalView() }"
+                            title="<?= $escaper->escapeHtmlAttr(__('Toggle global view')) ?>">
+                        <span><?= $escaper->escapeHtml(__('All')) ?></span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Tag Filters -->
+            <div class="filter-overlay" data-bind="visible: availableTags().length > 0">
+                <div class="tag-filter-container">
+                    <!-- ko foreach: availableTags -->
+                    <label class="tag-chip" data-bind="css: { 'active': $parent.selectedTags().indexOf(id) >= 0 }">
+                        <input type="checkbox" 
+                               class="tag-checkbox"
+                               data-bind="checkedValue: id, checked: $parent.selectedTags">
+                        <span data-bind="text: name"></span>
+                    </label>
+                    <!-- /ko -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- Loading Indicator -->
+        <div class="map-loading" data-bind="visible: isLoading">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+                <span><?= $escaper->escapeHtml(__('Searching for dealers...')) ?></span>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Location List Below Map -->
+    <div class="dealer-results-section" data-bind="visible: searchResults().length > 0">
+        <div class="results-container">
+            <div class="results-header">
+                <h2><?= $escaper->escapeHtml(__('Dealer Locations')) ?></h2>
+                <span class="result-count" data-bind="text: searchResults().length + ' ' + '<?= $escaper->escapeJs(__('locations found')) ?>'"></span>
+            </div>
+            
+            <div class="dealer-grid" data-bind="foreach: searchResults">
+                <div class="dealer-card" data-bind="click: $parent.selectLocation.bind($parent, $index()), css: { 'active': $parent.selectedLocationIndex() === $index() }">
+                    <div class="dealer-main">
+                        <h3 class="dealer-name" data-bind="text: name"></h3>
+                        
+                        <div class="dealer-section">
+                            <span class="section-label"><?= $escaper->escapeHtml(__('ADDRESS')) ?></span>
+                            <div class="dealer-address">
+                                <span data-bind="text: address"></span><br>
+                                <span data-bind="text: city + ', ' + state + ' ' + zip"></span><br>
+                                <!-- ko if: country -->
+                                <span data-bind="text: country"></span>
+                                <!-- /ko -->
+                            </div>
+                        </div>
+                        
+                        <div class="dealer-section">
+                            <span class="section-label"><?= $escaper->escapeHtml(__('CONTACT')) ?></span>
+                            <!-- ko if: phone -->
+                            <div class="dealer-phone">
+                                <span><?= $escaper->escapeHtml(__('Phone: ')) ?></span>
+                                <a data-bind="attr: { href: 'tel:' + phone }, text: phone"></a>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: email -->
+                            <div class="dealer-email">
+                                <span><?= $escaper->escapeHtml(__('Email: ')) ?></span>
+                                <a data-bind="attr: { href: 'mailto:' + email }, text: email"></a>
+                            </div>
+                            <!-- /ko -->
+                            <!-- ko if: website -->
+                            <div class="dealer-website">
+                                <span><?= $escaper->escapeHtml(__('Web: ')) ?></span>
+                                <a data-bind="attr: { href: website, target: '_blank' }, text: website"></a>
+                            </div>
+                            <!-- /ko -->
+                        </div>
+                        <!-- ko if: distance -->
+                        <div class="dealer-distance">
+                            <svg class="icon icon-distance" width="14" height="14" viewBox="0 0 14 14">
+                                <path d="M7,0C4.2,0,2,2.2,2,5c0,3.5,5,9,5,9s5-5.5,5-9C12,2.2,9.8,0,7,0z M7,7C5.9,7,5,6.1,5,5s0.9-2,2-2s2,0.9,2,2S8.1,7,7,7z"/>
+                            </svg>
+                            <span data-bind="text: distance.toFixed(1) + ' ' + '<?= $escaper->escapeJs(__('miles')) ?>'"></span>
+                        </div>
+                        <!-- /ko -->
+                        <!-- ko if: tags -->
+                        <div class="dealer-tags">
+                            <!-- ko foreach: tags.split(',') -->
+                            <span class="tag-label" data-bind="text: $data.trim()"></span>
+                            <!-- /ko -->
+                        </div>
+                        <!-- /ko -->
+                    </div>
+                    <div class="dealer-actions">
+                        <button type="button" 
+                                class="action-directions"
+                                data-bind="click: $parent.getDirections.bind($parent, $data), clickBubble: false">
+                            <?= $escaper->escapeHtml(__('Get Directions')) ?>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- No Results Message -->
+    <div class="no-results-section" data-bind="visible: !isLoading() && searchResults().length === 0 && hasSearched()">
+        <div class="no-results-message">
+            <svg class="icon icon-location-off" width="48" height="48" viewBox="0 0 48 48">
+                <path d="M24,4C16.3,4,10,10.3,10,18c0,10.5,14,26,14,26s14-15.5,14-26C38,10.3,31.7,4,24,4z M24,23c-2.8,0-5-2.2-5-5s2.2-5,5-5s5,2.2,5,5S26.8,23,24,23z" opacity="0.3"/>
+                <path d="M40.5,40.5L7.5,7.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <h3><?= $escaper->escapeHtml(__('No dealers found')) ?></h3>
+            <p><?= $escaper->escapeHtml(__('Try adjusting your search location or expanding the search area.')) ?></p>
+        </div>
+    </div>
+</div>
+<?php endif; ?>
+
+<script type="text/x-magento-init">
+{
+    "*": {
+        "Magento_Ui/js/core/app": {
+            "components": {
+                "dealer-map": {
+                    "component": "Zhik_DealerLocator/js/map/dealer-map",
+                    "config": <?= /* @noEscape */ json_encode($mapConfig) ?>
+                }
+            }
+        }
+    }
+}
+</script>

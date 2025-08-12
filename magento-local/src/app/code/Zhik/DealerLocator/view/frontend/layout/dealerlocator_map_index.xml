@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © Zhik. All rights reserved.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" layout="1column" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Find a Dealer</title>
+        <css src="Zhik_DealerLocator::css/dealer-map.css"/>
+    </head>
+    <referenceBlock name="head.additional">
+        <block class="Zhik\DealerLocator\Block\Map\View" 
+               name="dealerlocator.map.head" 
+               template="Zhik_DealerLocator::map/head.phtml"/>
+    </referenceBlock>
+    <body>
+        <referenceContainer name="content">
+            <block class="Zhik\DealerLocator\Block\Map\View" 
+                   name="dealerlocator.map.view" 
+                   template="Zhik_DealerLocator::map/view.phtml"
+                   before="-">
+                <arguments>
+                    <argument name="jsLayout" xsi:type="array">
+                        <item name="components" xsi:type="array">
+                            <item name="dealer-map" xsi:type="array">
+                                <item name="component" xsi:type="string">Zhik_DealerLocator/js/map/dealer-map</item>
+                                <item name="config" xsi:type="array">
+                                    <item name="mapId" xsi:type="string">dealer-map-container</item>
+                                    <item name="searchUrl" xsi:type="string">dealerlocator/location/search</item>
+                                </item>
+                            </item>
+                        </item>
+                    </argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>
